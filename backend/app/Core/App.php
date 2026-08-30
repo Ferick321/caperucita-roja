@@ -102,6 +102,18 @@ final class App
                 return false;
             }
 
+            // Los avisos de obsolescencia se anotan pero no interrumpen la
+            // peticion: una version nueva de PHP no debe tumbar el sitio.
+            if (in_array($severity, [E_DEPRECATED, E_USER_DEPRECATED, E_NOTICE, E_USER_NOTICE], true)) {
+                Logger::warning('Aviso de PHP', [
+                    'message' => $message,
+                    'file' => $file,
+                    'line' => $line,
+                ]);
+
+                return true;
+            }
+
             throw new \ErrorException($message, 0, $severity, $file, $line);
         });
 

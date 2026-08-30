@@ -68,7 +68,12 @@ final class View
             $layout = self::$sections['__layout'];
             unset(self::$sections['__layout']);
 
-            self::$sections['content'] = $content;
+            // La vista puede declarar su cuerpo con View::start('content'); si no
+            // lo hizo, se toma todo lo que imprimio directamente.
+            if (!isset(self::$sections['content'])) {
+                self::$sections['content'] = $content;
+            }
+
             $content = $render(self::resolve($layout), $data);
         }
 

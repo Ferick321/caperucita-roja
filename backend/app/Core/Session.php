@@ -46,8 +46,8 @@ final class Session
         ini_set('session.use_only_cookies', '1');
         ini_set('session.cookie_httponly', '1');
         ini_set('session.gc_maxlifetime', (string) $lifetime);
-        ini_set('session.sid_length', '48');
-        ini_set('session.sid_bits_per_character', '5');
+        // session.sid_length / sid_bits_per_character quedaron obsoletos en PHP 8.4;
+        // el valor por defecto del motor ya son 128 bits de entropia por identificador.
 
         session_start();
         self::$started = true;

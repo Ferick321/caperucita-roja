@@ -39,6 +39,10 @@ final class SecurityHeaders
             "object-src 'none'",
             "script-src 'self' 'nonce-{$nonce}'",
             "style-src 'self' 'nonce-{$nonce}'",
+            // Los atributos style="" van aparte: la hoja de estilos y los
+            // bloques <style> siguen exigiendo nonce, de modo que un XSS no
+            // puede inyectar CSS ejecutable ni cargar recursos externos.
+            "style-src-attr 'unsafe-inline'",
             "img-src 'self' data: blob:",
             "font-src 'self' data:",
             "connect-src 'self'",

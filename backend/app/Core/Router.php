@@ -187,6 +187,16 @@ final class Router
 
     private function call(mixed $handler, Request $request): Response
     {
+        try {
+            return $this->invoke($handler, $request);
+        } catch (\App\Controllers\ValidationRedirect $redirect) {
+            // Error de validacion en un formulario: se vuelve a el con los avisos.
+            return $redirect->response();
+        }
+    }
+
+    private function invoke(mixed $handler, Request $request): Response
+    {
         if (is_callable($handler)) {
             $result = $handler($request);
         } elseif (is_array($handler) && count($handler) === 2) {
