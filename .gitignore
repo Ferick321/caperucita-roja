@@ -1,0 +1,35 @@
+# Dependencias
+/backend/vendor/
+/mobile/.dart_tool/
+/mobile/build/
+/mobile/.packages
+/mobile/.flutter-plugins
+/mobile/.flutter-plugins-dependencies
+node_modules/
+
+# Entorno y secretos
+.env
+*.env
+!.env.example
+/backend/config/local.php
+/backend/storage/keys/
+
+# Almacenamiento generado
+/backend/storage/logs/*
+!/backend/storage/logs/.gitkeep
+/backend/storage/cache/*
+!/backend/storage/cache/.gitkeep
+/backend/storage/sessions/*
+!/backend/storage/sessions/.gitkeep
+/backend/storage/uploads/*
+!/backend/storage/uploads/.gitkeep
+/backend/storage/backups/*
+!/backend/storage/backups/.gitkeep
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.log

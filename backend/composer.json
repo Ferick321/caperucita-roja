@@ -1,0 +1,40 @@
+{
+    "name": "estilo/plataforma-belleza",
+    "description": "Plataforma web + API para barberia, peluqueria y estetica: agendamiento, pagos, publicidad y configuracion total sin tocar codigo.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-sodium": "*",
+        "ext-gd": "*",
+        "ext-fileinfo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/Support/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "migrate": "php cli/console.php migrate",
+        "seed": "php cli/console.php seed",
+        "test": "php tests/run.php",
+        "serve": "php -S 127.0.0.1:8080 -t public public/index.php"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
