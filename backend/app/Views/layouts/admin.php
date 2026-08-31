@@ -37,15 +37,19 @@ $menu = [
         ['label' => 'Citas', 'url' => '/panel/citas', 'icon' => '&#128197;', 'permission' => 'citas.ver', 'badge' => 'citas'],
         ['label' => 'Pagos', 'url' => '/panel/pagos', 'icon' => '&#128179;', 'permission' => 'pagos.ver', 'badge' => 'pagos'],
         ['label' => 'Clientes', 'url' => '/panel/clientes', 'icon' => '&#128101;', 'permission' => 'clientes.ver'],
+        ['label' => 'Lista de espera', 'url' => '/panel/espera', 'icon' => '&#8987;', 'permission' => 'espera.ver'],
     ],
     'Negocio' => [
         ['label' => 'Servicios', 'url' => '/panel/servicios', 'icon' => '&#9986;', 'permission' => 'servicios.ver'],
         ['label' => 'Equipo', 'url' => '/panel/personal', 'icon' => '&#128100;', 'permission' => 'personal.ver'],
+        ['label' => 'Sucursales', 'url' => '/panel/sucursales', 'icon' => '&#127970;', 'permission' => 'sucursales.ver'],
         ['label' => 'Cuentas y cobros', 'url' => '/panel/pagos/cuentas', 'icon' => '&#127974;', 'permission' => 'pagos.cuentas'],
     ],
     'Marketing' => [
         ['label' => 'Publicidad', 'url' => '/panel/publicidad', 'icon' => '&#128226;', 'permission' => 'publicidad.ver'],
         ['label' => 'Campanas', 'url' => '/panel/campanas', 'icon' => '&#9993;', 'permission' => 'campanas.ver'],
+        ['label' => 'Cupones', 'url' => '/panel/cupones', 'icon' => '&#127991;', 'permission' => 'cupones.ver'],
+        ['label' => 'Suscriptores', 'url' => '/panel/suscriptores', 'icon' => '&#128231;', 'permission' => 'suscriptores.ver'],
         ['label' => 'Pagina web', 'url' => '/panel/contenido', 'icon' => '&#127760;', 'permission' => 'contenido.ver'],
         ['label' => 'Galeria', 'url' => '/panel/contenido/galeria', 'icon' => '&#128247;', 'permission' => 'contenido.ver'],
         ['label' => 'Resenas', 'url' => '/panel/contenido/resenas', 'icon' => '&#9733;', 'permission' => 'contenido.ver', 'badge' => 'resenas'],
@@ -54,8 +58,9 @@ $menu = [
     'Administracion' => [
         ['label' => 'Informes', 'url' => '/panel/reportes', 'icon' => '&#128200;', 'permission' => 'reportes.ver'],
         ['label' => 'Ajustes', 'url' => '/panel/ajustes', 'icon' => '&#9881;', 'permission' => 'ajustes.ver'],
-        ['label' => 'Mantenimiento', 'url' => '/panel/sistema', 'icon' => '&#128736;', 'permission' => 'sistema.mantenimiento'],
-        ['label' => 'Auditoria', 'url' => '/panel/sistema/auditoria', 'icon' => '&#128269;', 'permission' => 'sistema.auditoria'],
+        ['label' => 'Usuarios del panel', 'url' => '/panel/usuarios', 'icon' => '&#128272;', 'permission' => 'usuarios.ver'],
+        ['label' => 'Mantenimiento', 'url' => '/panel/mantenimiento', 'icon' => '&#128736;', 'permission' => 'sistema.mantenimiento'],
+        ['label' => 'Auditoria', 'url' => '/panel/mantenimiento/auditoria', 'icon' => '&#128269;', 'permission' => 'sistema.auditoria'],
     ],
 ];
 ?>

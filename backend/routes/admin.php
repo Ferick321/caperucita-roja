@@ -12,18 +12,22 @@ declare(strict_types=1);
  */
 
 use App\Controllers\Admin\AppointmentController;
+use App\Controllers\Admin\AudienceController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\BannerController;
+use App\Controllers\Admin\BranchController;
 use App\Controllers\Admin\CampaignController;
 use App\Controllers\Admin\CatalogController;
 use App\Controllers\Admin\ClientController;
 use App\Controllers\Admin\ContentController;
+use App\Controllers\Admin\CouponController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\PaymentController;
 use App\Controllers\Admin\ReportController;
 use App\Controllers\Admin\SettingsController;
+use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\StaffController;
-use App\Controllers\Admin\SystemController;
+use App\Controllers\Admin\MaintenanceController;
 
 // ---- Acceso al panel (sin sesion) --------------------------------------
 $router->group('/panel', ['https'], static function (App\Core\Router $router): void {
@@ -86,13 +90,27 @@ $router->group('/panel', ['https', 'auth', 'admin'], static function (App\Core\R
     $router->post('/personal/{id:int}/acceso', [StaffController::class, 'toggleAccess'], ['csrf', 'can:personal.editar']);
     $router->post('/personal/{id:int}/eliminar', [StaffController::class, 'delete'], ['csrf', 'can:personal.editar']);
 
+    // -- Sucursales -------------------------------------------------------
+    $router->get('/sucursales', [BranchController::class, 'index'], ['can:sucursales.ver'], 'panel_sucursales');
+    $router->get('/sucursales/nueva', [BranchController::class, 'form'], ['can:sucursales.editar']);
+    $router->post('/sucursales', [BranchController::class, 'save'], ['csrf', 'can:sucursales.editar']);
+    $router->get('/sucursales/{id:int}/editar', [BranchController::class, 'form'], ['can:sucursales.editar']);
+    $router->post('/sucursales/{id:int}', [BranchController::class, 'save'], ['csrf', 'can:sucursales.editar']);
+    $router->post('/sucursales/{id:int}/horario', [BranchController::class, 'saveHours'], ['csrf', 'can:sucursales.editar']);
+    $router->post('/sucursales/{id:int}/cierres', [BranchController::class, 'addClosure'], ['csrf', 'can:sucursales.editar']);
+    $router->post('/sucursales/{id:int}/cierres/{closureId:int}/eliminar', [BranchController::class, 'deleteClosure'], ['csrf', 'can:sucursales.editar']);
+    $router->post('/sucursales/{id:int}/principal', [BranchController::class, 'makeDefault'], ['csrf', 'can:sucursales.editar']);
+    $router->post('/sucursales/{id:int}/eliminar', [BranchController::class, 'delete'], ['csrf', 'can:sucursales.editar']);
+
     // -- Pagos ------------------------------------------------------------
     $router->get('/pagos', [PaymentController::class, 'index'], ['can:pagos.ver'], 'panel_pagos');
     $router->get('/pagos/cuentas', [PaymentController::class, 'bankAccounts'], ['can:pagos.cuentas']);
     $router->post('/pagos/cuentas', [PaymentController::class, 'saveBankAccount'], ['csrf', 'can:pagos.cuentas']);
     $router->post('/pagos/cuentas/{id:int}', [PaymentController::class, 'saveBankAccount'], ['csrf', 'can:pagos.cuentas']);
     $router->post('/pagos/cuentas/{id:int}/eliminar', [PaymentController::class, 'deleteBankAccount'], ['csrf', 'can:pagos.cuentas']);
+    $router->post('/pagos/metodos', [PaymentController::class, 'saveMethod'], ['csrf', 'can:pagos.cuentas']);
     $router->post('/pagos/metodos/{id:int}', [PaymentController::class, 'saveMethod'], ['csrf', 'can:pagos.cuentas']);
+    $router->post('/pagos/metodos/{id:int}/eliminar', [PaymentController::class, 'deleteMethod'], ['csrf', 'can:pagos.cuentas']);
     $router->post('/pagos/manual', [PaymentController::class, 'registerManual'], ['csrf', 'can:pagos.verificar']);
     $router->post('/pagos/{id:int}/aprobar', [PaymentController::class, 'approve'], ['csrf', 'can:pagos.verificar']);
     $router->post('/pagos/{id:int}/rechazar', [PaymentController::class, 'reject'], ['csrf', 'can:pagos.verificar']);
@@ -117,15 +135,27 @@ $router->group('/panel', ['https', 'auth', 'admin'], static function (App\Core\R
     $router->post('/campanas/{id:int}/cancelar', [CampaignController::class, 'cancel'], ['csrf', 'can:campanas.enviar']);
     $router->post('/campanas/{id:int}/eliminar', [CampaignController::class, 'delete'], ['csrf', 'can:campanas.enviar']);
 
+    // -- Cupones ----------------------------------------------------------
+    $router->get('/cupones', [CouponController::class, 'index'], ['can:cupones.ver'], 'panel_cupones');
+    $router->get('/cupones/nuevo', [CouponController::class, 'form'], ['can:cupones.editar']);
+    $router->post('/cupones', [CouponController::class, 'save'], ['csrf', 'can:cupones.editar']);
+    $router->get('/cupones/{id:int}/editar', [CouponController::class, 'form'], ['can:cupones.editar']);
+    $router->post('/cupones/{id:int}', [CouponController::class, 'save'], ['csrf', 'can:cupones.editar']);
+    $router->post('/cupones/{id:int}/activar', [CouponController::class, 'toggle'], ['csrf', 'can:cupones.editar']);
+    $router->post('/cupones/{id:int}/eliminar', [CouponController::class, 'delete'], ['csrf', 'can:cupones.editar']);
+
     // -- Contenido de la web ----------------------------------------------
     $router->get('/contenido', [ContentController::class, 'index'], ['can:contenido.ver'], 'panel_contenido');
+    $router->post('/contenido', [ContentController::class, 'saveBlock'], ['csrf', 'can:contenido.editar']);
     $router->post('/contenido/{id:int}', [ContentController::class, 'saveBlock'], ['csrf', 'can:contenido.editar']);
+    $router->post('/contenido/{id:int}/eliminar', [ContentController::class, 'deleteBlock'], ['csrf', 'can:contenido.editar']);
     $router->get('/contenido/galeria', [ContentController::class, 'gallery'], ['can:contenido.ver']);
     $router->post('/contenido/galeria', [ContentController::class, 'saveGalleryItem'], ['csrf', 'can:contenido.editar']);
     $router->post('/contenido/galeria/{id:int}', [ContentController::class, 'saveGalleryItem'], ['csrf', 'can:contenido.editar']);
     $router->post('/contenido/galeria/{id:int}/eliminar', [ContentController::class, 'deleteGalleryItem'], ['csrf', 'can:contenido.editar']);
     $router->get('/contenido/resenas', [ContentController::class, 'reviews'], ['can:contenido.ver']);
     $router->post('/contenido/resenas/{id:int}', [ContentController::class, 'moderateReview'], ['csrf', 'can:contenido.editar']);
+    $router->post('/contenido/resenas/{id:int}/eliminar', [ContentController::class, 'deleteReview'], ['csrf', 'can:contenido.editar']);
     $router->get('/contenido/preguntas', [ContentController::class, 'faqs'], ['can:contenido.ver']);
     $router->post('/contenido/preguntas', [ContentController::class, 'saveFaq'], ['csrf', 'can:contenido.editar']);
     $router->post('/contenido/preguntas/{id:int}', [ContentController::class, 'saveFaq'], ['csrf', 'can:contenido.editar']);
@@ -133,6 +163,27 @@ $router->group('/panel', ['https', 'auth', 'admin'], static function (App\Core\R
     $router->get('/contenido/mensajes', [ContentController::class, 'messages'], ['can:contenido.ver']);
     $router->post('/contenido/mensajes/{id:int}/leido', [ContentController::class, 'markMessageRead'], ['csrf', 'can:contenido.ver']);
     $router->post('/contenido/mensajes/{id:int}/eliminar', [ContentController::class, 'deleteMessage'], ['csrf', 'can:contenido.editar']);
+
+    // -- Suscriptores del boletin -----------------------------------------
+    $router->get('/suscriptores', [AudienceController::class, 'subscribers'], ['can:suscriptores.ver'], 'panel_suscriptores');
+    $router->get('/suscriptores/exportar', [AudienceController::class, 'exportSubscribers'], ['can:suscriptores.ver']);
+    $router->post('/suscriptores', [AudienceController::class, 'storeSubscriber'], ['csrf', 'can:suscriptores.editar']);
+    $router->post('/suscriptores/{id:int}/baja', [AudienceController::class, 'unsubscribe'], ['csrf', 'can:suscriptores.editar']);
+    $router->post('/suscriptores/{id:int}/eliminar', [AudienceController::class, 'deleteSubscriber'], ['csrf', 'can:suscriptores.editar']);
+
+    // -- Lista de espera --------------------------------------------------
+    $router->get('/espera', [AudienceController::class, 'waitlist'], ['can:espera.ver'], 'panel_espera');
+    $router->post('/espera/{id:int}', [AudienceController::class, 'updateWaitlist'], ['csrf', 'can:espera.editar']);
+    $router->post('/espera/{id:int}/eliminar', [AudienceController::class, 'deleteWaitlist'], ['csrf', 'can:espera.editar']);
+
+    // -- Usuarios del panel -----------------------------------------------
+    $router->get('/usuarios', [UserController::class, 'index'], ['can:usuarios.ver'], 'panel_usuarios');
+    $router->get('/usuarios/nuevo', [UserController::class, 'form'], ['can:usuarios.editar']);
+    $router->post('/usuarios', [UserController::class, 'save'], ['csrf', 'can:usuarios.editar']);
+    $router->get('/usuarios/{id:int}/editar', [UserController::class, 'form'], ['can:usuarios.editar']);
+    $router->post('/usuarios/{id:int}', [UserController::class, 'save'], ['csrf', 'can:usuarios.editar']);
+    $router->post('/usuarios/{id:int}/estado', [UserController::class, 'toggle'], ['csrf', 'can:usuarios.editar']);
+    $router->post('/usuarios/{id:int}/eliminar', [UserController::class, 'delete'], ['csrf', 'can:usuarios.editar']);
 
     // -- Informes ---------------------------------------------------------
     $router->get('/reportes', [ReportController::class, 'index'], ['can:reportes.ver'], 'panel_reportes');
@@ -145,13 +196,40 @@ $router->group('/panel', ['https', 'auth', 'admin'], static function (App\Core\R
     $router->get('/ajustes/{group}', [SettingsController::class, 'group'], ['can:ajustes.ver']);
     $router->post('/ajustes/{group}', [SettingsController::class, 'update'], ['csrf', 'can:ajustes.editar']);
 
-    // -- Sistema ----------------------------------------------------------
-    $router->get('/sistema', [SystemController::class, 'index'], ['can:sistema.mantenimiento'], 'panel_sistema');
-    $router->get('/sistema/simular-limpieza', [SystemController::class, 'previewCleanup'], ['can:sistema.mantenimiento']);
-    $router->post('/sistema/limpiar', [SystemController::class, 'runCleanup'], ['csrf', 'can:sistema.mantenimiento']);
-    $router->post('/sistema/retencion/{id:int}', [SystemController::class, 'savePolicy'], ['csrf', 'can:sistema.mantenimiento']);
-    $router->post('/sistema/cola', [SystemController::class, 'processQueue'], ['csrf', 'can:sistema.mantenimiento']);
-    $router->post('/sistema/cola/reintentar', [SystemController::class, 'retryFailed'], ['csrf', 'can:sistema.mantenimiento']);
-    $router->get('/sistema/auditoria', [SystemController::class, 'audit'], ['can:sistema.auditoria']);
-    $router->get('/sistema/accesos', [SystemController::class, 'loginAttempts'], ['can:sistema.auditoria']);
+    // -- Mantenimiento ----------------------------------------------------
+    $router->get('/mantenimiento', [MaintenanceController::class, 'index'], ['can:sistema.mantenimiento'], 'panel_mantenimiento');
+    $router->get('/mantenimiento/simular-limpieza', [MaintenanceController::class, 'previewCleanup'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/limpiar', [MaintenanceController::class, 'runCleanup'], ['csrf', 'can:sistema.mantenimiento']);
+
+    // Tablas: ver cuanto ocupan, compactarlas y vaciarlas.
+    $router->get('/mantenimiento/tablas', [MaintenanceController::class, 'tables'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/tablas/optimizar', [MaintenanceController::class, 'optimizeOne'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/tablas/optimizar-todo', [MaintenanceController::class, 'optimizeAll'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/tablas/vaciar', [MaintenanceController::class, 'emptyTable'], ['csrf', 'can:sistema.mantenimiento']);
+
+    // Archivos subidos.
+    $router->get('/mantenimiento/archivos', [MaintenanceController::class, 'files'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/archivos/eliminar', [MaintenanceController::class, 'deleteFile'], ['csrf', 'can:sistema.mantenimiento']);
+
+    // Copias de seguridad.
+    $router->get('/mantenimiento/copias', [MaintenanceController::class, 'backups'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/copias', [MaintenanceController::class, 'createBackup'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->get('/mantenimiento/copias/descargar', [MaintenanceController::class, 'downloadBackup'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/copias/eliminar', [MaintenanceController::class, 'deleteBackup'], ['csrf', 'can:sistema.mantenimiento']);
+
+    // Politicas de limpieza automatica.
+    $router->get('/mantenimiento/retencion', [MaintenanceController::class, 'policies'], ['can:sistema.mantenimiento']);
+    $router->get('/mantenimiento/retencion/nueva', [MaintenanceController::class, 'policyForm'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/retencion', [MaintenanceController::class, 'savePolicyFull'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->get('/mantenimiento/retencion/{id:int}/editar', [MaintenanceController::class, 'policyForm'], ['can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/retencion/{id:int}', [MaintenanceController::class, 'savePolicyFull'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/retencion/{id:int}/rapido', [MaintenanceController::class, 'savePolicy'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/retencion/{id:int}/eliminar', [MaintenanceController::class, 'deletePolicy'], ['csrf', 'can:sistema.mantenimiento']);
+
+    // Cola de avisos.
+    $router->post('/mantenimiento/cola', [MaintenanceController::class, 'processQueue'], ['csrf', 'can:sistema.mantenimiento']);
+    $router->post('/mantenimiento/cola/reintentar', [MaintenanceController::class, 'retryFailed'], ['csrf', 'can:sistema.mantenimiento']);
+
+    $router->get('/mantenimiento/auditoria', [MaintenanceController::class, 'audit'], ['can:sistema.auditoria']);
+    $router->get('/mantenimiento/accesos', [MaintenanceController::class, 'loginAttempts'], ['can:sistema.auditoria']);
 });

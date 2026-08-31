@@ -154,6 +154,46 @@ vea su propia agenda. Se genera una contraseña temporal que debe cambiar.
 
 ---
 
+## Sucursales, horarios y feriados
+
+**Sucursales** es donde defines tus locales. Es el módulo que manda sobre la
+agenda: **si el local está cerrado, no se ofrece ninguna cita a esa hora**,
+aunque el profesional esté libre.
+
+De cada sucursal defines su dirección, teléfono, zona horaria y foto. Al crearla
+se le pone un horario de lunes a sábado que puedes ajustar.
+
+### Horario de atención
+
+Para cada día indicas a qué hora abres, a qué hora cierras y, si quieres, un
+descanso (a esa hora no se ofrecen citas). Marca **Cerrado** en los días que no
+abres.
+
+El sistema no acepta una hora de cierre anterior a la de apertura: te avisaría
+en vez de dejarte el día sin turnos sin darte cuenta.
+
+### Feriados y días cerrados
+
+Vacaciones, feriados o cualquier día suelto en que no atiendes. En cuanto
+guardas el cierre, esas fechas dejan de aceptar citas en la web y en la app.
+
+---
+
+## Cupones y descuentos
+
+**Cupones** son códigos que el cliente escribe al reservar. Puedes hacerlos:
+
+- **En porcentaje** (10% de descuento) o **de monto fijo** (5 de descuento).
+- **Con tope**: un descuento máximo en dinero, para que un porcentaje alto no se
+  te vaya de las manos.
+- **Limitados por fecha**, por número total de usos o por usos de cada cliente.
+- **Solo para un servicio** concreto.
+- **Solo para quien viene por primera vez.**
+
+En la ficha de cada cupón ves cuántas veces se ha usado y quién lo canjeó.
+
+---
+
 ## Citas
 
 **Agenda del día** muestra una columna por profesional. **Citas** es el listado
@@ -202,6 +242,24 @@ y los bloqueados. En cada ficha ves su historial, sus pagos y sus puntos, y
 puedes añadir **notas internas** (preferencias, alergias) que solo ve tu equipo.
 
 **Exportar CSV** descarga tu base de clientes para Excel.
+
+---
+
+## Suscriptores
+
+**Suscriptores** es la lista de quien aceptó recibir tu publicidad, desde la web,
+la app o apuntado a mano en el local. Es la lista a la que llegan tus campañas.
+
+Puedes añadir a alguien a mano (asegúrate de que te dio permiso), darlo de baja
+sin borrarlo (queda constancia de que pidió la baja) o borrarlo del todo.
+**Descargar CSV** te da la lista para usarla en otra herramienta.
+
+---
+
+## Lista de espera
+
+Clientes que querían una hora ocupada y pidieron aviso si se libera. Cuando les
+llames, márcalos como **Avisado**; si reservan, como **Reservó**.
 
 ---
 
@@ -268,10 +326,48 @@ Marca lo que quieras y escribe `LIMPIAR`:
 - **Compactar las tablas**: devuelve al servidor el espacio liberado.
 - **Borrar registros antiguos** de la aplicación.
 
-### Políticas de retención
+### Tablas y espacio
 
-La tabla de abajo define cuánto tiempo se conserva cada tipo de dato: intentos de
-acceso, eventos de publicidad, avisos enviados, auditoría, comprobantes...
+**Mantenimiento → Tablas y espacio** te muestra, una por una, cuánto ocupa cada
+parte del sistema y cuántos registros tiene.
+
+- **Compactar** devuelve al servidor el espacio que quedó libre después de
+  borrar. No toca tus datos, así que puedes usarlo siempre que quieras.
+- **Vaciar** borra todo el contenido de esa tabla y **no tiene vuelta atrás**.
+  Para evitar accidentes tienes que escribir el nombre exacto de la tabla.
+
+Solo se pueden vaciar tablas de registro (historial de acciones, intentos de
+acceso, estadísticas, cola de avisos…). Tus servicios, tu equipo, tus
+sucursales, tus clientes y tus ajustes **no aparecen ahí a propósito**:
+vaciarlos dejaría el sistema inservible.
+
+### Archivos subidos
+
+**Mantenimiento → Archivos subidos** lista todo lo que se ha subido (fotos,
+comprobantes, imágenes de la web) agrupado por carpeta, con su tamaño.
+
+Los marcados como **Sin usar** ya no aparecen en ninguna ficha, así que puedes
+borrarlos para liberar espacio sin romper nada.
+
+### Copias de seguridad
+
+**Mantenimiento → Copias de seguridad** genera un archivo con toda tu
+información, que puedes descargar y volver a importar si algo sale mal.
+
+**Hazte una copia antes de vaciar o limpiar cualquier cosa**, y guárdala en tu
+computadora: si el servidor falla, las copias que estén dentro de él se pierden
+igual.
+
+### Limpieza automática (políticas de retención)
+
+**Mantenimiento → Limpieza automática** define cuánto tiempo se conserva cada
+tipo de dato antes de borrarse solo: intentos de acceso, eventos de publicidad,
+avisos enviados, auditoría, comprobantes...
+
+Puedes **crear tus propias reglas, cambiarlas, apagarlas o eliminarlas**. Cada
+regla necesita tres cosas: qué datos se limpian, con qué fecha se miden
+(casi siempre `created_at`) y cuántos días se guardan.
+
 Ajusta los días según tus obligaciones contables. Si dejas activa la **limpieza
 automática** (Ajustes → Sistema), esto se ejecuta solo cada madrugada.
 
@@ -295,7 +391,21 @@ conserva de forma **anónima**, porque forma parte de tu contabilidad.
 
 ---
 
-## Permisos del equipo
+## Usuarios del panel
+
+**Usuarios del panel** es donde das de alta a quien puede entrar a administrar
+y con qué permisos.
+
+El sistema se protege solo de los errores más caros:
+
+- **No puedes darle a nadie más poder del que tú tienes.** Un administrador no
+  puede crear ni ascender a un super administrador.
+- **No puedes suspenderte ni eliminarte a ti mismo**, ni cambiarte tu propio rol.
+- Un administrador **no puede tocar a un super administrador.**
+- Al cambiar la contraseña de alguien **se cierran sus sesiones abiertas**,
+  también las de la app móvil.
+
+### Permisos del equipo
 
 | Rol | Qué puede hacer |
 |---|---|

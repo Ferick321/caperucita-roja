@@ -18,6 +18,14 @@ final class Validator
     /** @var array<string,mixed> */
     private array $data;
 
+    /**
+     * Campos declarados como numericos, para que max/min midan magnitud
+     * en ellos y longitud en el resto.
+     *
+     * @var array<string,bool>
+     */
+    private array $declaredNumeric = [];
+
     /** @var array<string,list<string>> */
     private array $errors = [];
 
@@ -75,6 +83,13 @@ final class Validator
 
             return;
         }
+
+        // "max"/"min" significan cosas distintas segun el tipo declarado: en un
+        // texto son caracteres y en un numero es magnitud. Se decide por la
+        // regla escrita, no por el aspecto del valor: un telefono como
+        // 0999888777 es numerico para PHP, y sin esto "string|max:30" lo
+        // rechazaba por "no puede ser mayor a 30".
+        $this->declaredNumeric[$field] = (bool) array_intersect($rules, ['int', 'integer', 'numeric', 'float']);
 
         foreach ($rules as $rule) {
             if ($rule === 'required' || $rule === 'optional') {
@@ -224,10 +239,12 @@ final class Validator
 
             case 'min':
                 $min = (float) $parameter;
-                if (is_numeric($value) ? (float) $value < $min : mb_strlen((string) $value) < $min) {
+                $asNumber = $this->declaredNumeric[$field] ?? false;
+
+                if ($asNumber ? (float) $value < $min : mb_strlen((string) $value) < $min) {
                     return $this->fail(
                         $field,
-                        is_numeric($value)
+                        $asNumber
                             ? "debe ser mayor o igual a {$parameter}."
                             : "debe tener al menos {$parameter} caracteres."
                     );
@@ -237,10 +254,12 @@ final class Validator
 
             case 'max':
                 $max = (float) $parameter;
-                if (is_numeric($value) ? (float) $value > $max : mb_strlen((string) $value) > $max) {
+                $asNumber = $this->declaredNumeric[$field] ?? false;
+
+                if ($asNumber ? (float) $value > $max : mb_strlen((string) $value) > $max) {
                     return $this->fail(
                         $field,
-                        is_numeric($value)
+                        $asNumber
                             ? "no puede ser mayor a {$parameter}."
                             : "no puede superar {$parameter} caracteres."
                     );

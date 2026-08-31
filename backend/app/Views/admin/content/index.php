@@ -113,7 +113,71 @@ View::extend('layouts.admin');
 
                 <button type="submit" class="btn btn--primary btn--sm mt-2">Guardar seccion</button>
             </form>
+
+            <form method="post" class="mt-2"
+                  action="<?= e(url('/panel/contenido/' . (int) $block['id'] . '/eliminar')) ?>"
+                  data-confirm="Se quitara esta seccion de la web. Continuar?">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn--danger btn--sm">Eliminar seccion</button>
+            </form>
         </details>
     </div>
 <?php endforeach; ?>
+
+<div class="card mt-3">
+    <details class="collapsible">
+        <summary class="btn btn--primary btn--sm">Anadir una seccion nueva</summary>
+
+        <p class="text-muted text-small mt-2">
+            Un bloque de texto libre para contar algo mas en tu pagina: promociones,
+            horarios especiales, formas de llegar o lo que necesites.
+        </p>
+
+        <form method="post" enctype="multipart/form-data" class="mt-2"
+              action="<?= e(url('/panel/contenido')) ?>">
+            <?= csrf_field() ?>
+
+            <div class="field">
+                <label for="nueva-seccion-titulo">Titulo</label>
+                <input id="nueva-seccion-titulo" type="text" name="title" required maxlength="200"
+                       placeholder="Ej: Promocion de temporada">
+            </div>
+
+            <div class="field">
+                <label for="nueva-seccion-subtitulo">Subtitulo</label>
+                <input id="nueva-seccion-subtitulo" type="text" name="subtitle" maxlength="300">
+            </div>
+
+            <div class="field">
+                <label for="nueva-seccion-texto">Texto</label>
+                <textarea id="nueva-seccion-texto" name="body" rows="4" maxlength="8000"></textarea>
+            </div>
+
+            <div class="grid grid--2">
+                <div class="field">
+                    <label for="nueva-seccion-boton">Texto del boton</label>
+                    <input id="nueva-seccion-boton" type="text" name="cta_label" maxlength="80">
+                </div>
+                <div class="field">
+                    <label for="nueva-seccion-enlace">Enlace del boton</label>
+                    <input id="nueva-seccion-enlace" type="text" name="cta_url" maxlength="500"
+                           placeholder="https://...">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="nueva-seccion-imagen">Imagen</label>
+                <input id="nueva-seccion-imagen" type="file" name="image"
+                       accept="image/jpeg,image/png,image/webp">
+            </div>
+
+            <label class="checkbox">
+                <input type="checkbox" name="is_active" value="1" checked>
+                <span>Mostrar esta seccion</span>
+            </label>
+
+            <button type="submit" class="btn btn--primary mt-2">Crear seccion</button>
+        </form>
+    </details>
+</div>
 <?php View::stop(); ?>

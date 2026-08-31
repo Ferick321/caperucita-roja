@@ -12,7 +12,7 @@ View::extend('layouts.admin');
 <?php View::start('title'); ?>Auditoria<?php View::stop(); ?>
 
 <?php View::start('actions'); ?>
-    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/sistema/accesos')) ?>">Historial de accesos</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/accesos')) ?>">Historial de accesos</a>
 <?php View::stop(); ?>
 
 <?php View::start('content'); ?>
@@ -21,7 +21,7 @@ View::extend('layouts.admin');
     direccion. Es la herramienta para investigar cualquier incidente.
 </div>
 
-<form method="get" action="<?= e(url('/panel/sistema/auditoria')) ?>" class="card">
+<form method="get" action="<?= e(url('/panel/mantenimiento/auditoria')) ?>" class="card">
     <div class="filters">
         <div class="field">
             <label for="q">Buscar</label>
@@ -91,6 +91,6 @@ View::extend('layouts.admin');
 </div>
 
 <?= View::partial('partials.pagination', [
-    'result' => $result, 'baseUrl' => url('/panel/sistema/auditoria'), 'query' => $filters,
+    'result' => $result, 'baseUrl' => url('/panel/mantenimiento/auditoria'), 'query' => $filters,
 ]) ?>
 <?php View::stop(); ?>

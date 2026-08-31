@@ -184,6 +184,40 @@ check(
     Validator::make(['n' => '<script>alert(1)</script>'], ['n' => 'required|no_html'])->fails(),
 );
 
+// max/min segun el tipo declarado.
+//
+// Un telefono como "0999888777" es numerico para PHP. Si "max" se decidiera
+// mirando el valor en vez de la regla escrita, lo compararia como numero y
+// rechazaria cualquier telefono por "no puede ser mayor a 30".
+check(
+    'acepta un telefono largo en un campo de texto',
+    Validator::make(['p' => '0999888777'], ['p' => 'optional|string|max:30'])->passes(),
+);
+check(
+    'cuenta caracteres, no magnitud, en un campo de texto',
+    Validator::make(['p' => str_repeat('9', 31)], ['p' => 'optional|string|max:30'])->fails(),
+);
+check(
+    'conserva los ceros a la izquierda de un codigo postal',
+    Validator::make(['c' => '00123'], ['c' => 'optional|string|max:10'])->passes(),
+);
+check(
+    'compara magnitud en un campo numerico',
+    Validator::make(['n' => '250'], ['n' => 'required|int|max:100'])->fails(),
+);
+check(
+    'acepta un numero dentro del maximo',
+    Validator::make(['n' => '25'], ['n' => 'required|int|max:100'])->passes(),
+);
+check(
+    'aplica el minimo como magnitud en un numero',
+    Validator::make(['n' => '2'], ['n' => 'required|int|min:10'])->fails(),
+);
+check(
+    'aplica el minimo como longitud en un texto',
+    Validator::make(['t' => 'a'], ['t' => 'required|string|min:2'])->fails(),
+);
+
 // Fechas y horas.
 check('acepta una fecha valida', Validator::make(['d' => '2026-02-28'], ['d' => 'required|date'])->passes());
 check('rechaza el 30 de febrero', Validator::make(['d' => '2026-02-30'], ['d' => 'required|date'])->fails());

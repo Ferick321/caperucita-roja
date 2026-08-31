@@ -212,16 +212,41 @@ Además se limpian los **archivos huérfanos**: se recorre el disco y se borra l
 que ya no referencia ninguna fila, respetando una hora de gracia por si algo
 está a medio subir.
 
+A esto se suman, desde el panel de **Mantenimiento**:
+
+4. **Vaciado de una tabla concreta**, con confirmación escrita del nombre. Usa
+   `DELETE` y no `TRUNCATE`: `TRUNCATE` hace un commit implícito y falla si hay
+   claves foráneas apuntando a la tabla, mientras que `DELETE` respeta las
+   reglas del esquema y avisa si algo depende de esos datos.
+5. **Gestor de archivos**: lista lo subido agrupado por carpeta y marca lo
+   huérfano. El borrado resuelve la ruta con `realpath` y comprueba que siga
+   dentro de la carpeta de subidas, así que un `..` no alcanza al resto del
+   servidor. Borra primero la fila y después el archivo: al revés quedaría una
+   fila apuntando a un archivo inexistente.
+6. **Copias de seguridad** en SQL, generadas sin depender de `mysqldump` para
+   que funcionen en hostings compartidos sin binarios. Se leen por bloques de
+   500 filas para que una tabla grande no agote la memoria.
+
 Todo se puede **simular antes de ejecutar**, y cada limpieza queda registrada.
 
-Las tablas sobre las que se puede actuar están en una lista blanca cerrada en el
-código: una política mal configurada no puede tocar una tabla arbitraria.
+Hay **dos listas blancas distintas**, ambas cerradas en el código:
+
+- `ALLOWED_TABLES` — sobre las que pueden actuar las políticas de retención.
+- `EMPTYABLE_TABLES` — las que el panel deja vaciar por completo. Solo entran
+  datos operativos o de registro. El catálogo y la configuración (servicios,
+  personal, sucursales, ajustes, usuarios) no aparecen ahí a propósito:
+  perderlos dejaría el sistema inservible.
+
+Una política mal configurada, o un formulario manipulado, no pueden tocar una
+tabla arbitraria.
 
 ---
 
 ## Base de datos
 
-50 tablas en seis migraciones temáticas. Decisiones que conviene conocer:
+50 tablas en siete migraciones temáticas (la séptima solo registra los permisos
+de los módulos añadidos después, con `INSERT IGNORE` para que se pueda repetir).
+Decisiones que conviene conocer:
 
 **Datos congelados en el histórico.** `appointment_services` guarda el nombre y
 el precio del servicio tal como estaban al reservar. Si mañana subes el precio,

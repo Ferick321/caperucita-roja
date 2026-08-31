@@ -12,6 +12,8 @@
 --      - 8 secciones de la pagina web
 --      - 10 plantillas de correo
 --      - 13 politicas de limpieza de datos
+--      - 1 sucursal con su horario semanal
+--      - 40 permisos repartidos entre los roles del panel
 --      - 1 cuenta de administrador: admin@mibarberia.com
 --
 --  COMO IMPORTARLO
@@ -31,7 +33,6 @@
 --  Cotejamiento: utf8mb4_unicode_ci (admite tildes, enies y emojis)
 -- ============================================================================
 
--- CREATE DATABASE IF NOT EXISTS `estilo` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -323,7 +324,7 @@ CREATE TABLE `branch_hours` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_branch_weekday` (`branch_id`,`weekday`),
   CONSTRAINT `fk_hours_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `branch_hours` DISABLE KEYS */;
@@ -361,7 +362,7 @@ CREATE TABLE `branches` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_branches_slug` (`slug`),
   KEY `idx_branches_active` (`is_active`,`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `branches` DISABLE KEYS */;
@@ -476,11 +477,11 @@ CREATE TABLE `content_blocks` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_blocks_key` (`block_key`),
   KEY `idx_blocks_active` (`is_active`,`sort_order`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `content_blocks` DISABLE KEYS */;
-INSERT INTO `content_blocks` (`id`, `block_key`, `section_type`, `title`, `subtitle`, `body`, `image_path`, `background_path`, `cta_label`, `cta_url`, `cta_secondary_label`, `cta_secondary_url`, `extra_json`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES (1,'hero','hero','Tu estilo, en las mejores manos','Barberia, peluqueria y estetica con cita previa. Sin filas, sin esperas.','','','','Agendar mi cita','/agendar','Descargar la app','/app',NULL,1,0,'2026-08-30 14:09:37','2026-08-30 14:09:37'),
+INSERT INTO `content_blocks` (`id`, `block_key`, `section_type`, `title`, `subtitle`, `body`, `image_path`, `background_path`, `cta_label`, `cta_url`, `cta_secondary_label`, `cta_secondary_url`, `extra_json`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES (1,'hero','hero','Tu estilo, en las mejores manos','Barberia, peluqueria y estetica con cita previa. Sin filas, sin esperas.','','','','Agendar mi cita','/agendar','Descargar la app','/app',NULL,1,0,'2026-08-30 14:09:37','2026-08-31 15:39:11'),
 (2,'app_promo','app_promo','Lleva tu barberia en el bolsillo','Agenda, reprograma y paga desde el celular. Recibe recordatorios y promociones.','Con la app puedes elegir tu profesional favorito, ver los horarios libres en tiempo real, subir tu comprobante de pago y acumular puntos en cada visita.','','','Descargar para Android','/app','','',NULL,1,10,'2026-08-30 14:09:37','2026-08-30 14:09:37'),
 (3,'services_intro','services','Nuestros servicios','Elige lo que necesitas; si no lo encuentras, cuentanos y lo resolvemos.',NULL,'','','','','','',NULL,1,20,'2026-08-30 14:09:37','2026-08-30 14:09:37'),
 (4,'team_intro','team','Nuestro equipo','Profesionales con anos de experiencia listos para atenderte.',NULL,'','','','','','',NULL,1,30,'2026-08-30 14:09:37','2026-08-30 14:09:37'),
@@ -737,7 +738,7 @@ CREATE TABLE `migrations` (
   `applied_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_migrations_filename` (`filename`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
@@ -746,7 +747,8 @@ INSERT INTO `migrations` (`id`, `filename`, `checksum`, `batch`, `applied_at`) V
 (3,'0003_citas.sql','e6aa6506bcdc452c59ba1c9f23b54192c7ff23e4c0bf1f11dd31debc26c108c6',1,'2026-08-30 14:09:37'),
 (4,'0004_pagos.sql','7cc2b2a5c9ee92b9549303424983c614b44241e8c4cb8063fcb6e8aac9948633',1,'2026-08-30 14:09:37'),
 (5,'0005_contenido_y_publicidad.sql','fa1b43ff1bd8bd3eebd015710dc404b5deecb8fe3315e7cf1fa73b3c8e4b75df',1,'2026-08-30 14:09:37'),
-(6,'0006_marketing_y_sistema.sql','71c080561495bec4df4ab173303383a7fe9bb38b8a6f643de84fd84c83fef9ea',1,'2026-08-30 14:09:37');
+(6,'0006_marketing_y_sistema.sql','71c080561495bec4df4ab173303383a7fe9bb38b8a6f643de84fd84c83fef9ea',1,'2026-08-30 14:09:37'),
+(7,'0007_crud_completo.sql','89932a7253b59668b8d8b5b5911bf535e193198899196939e2e4b60736681e83',2,'2026-08-31 15:23:07');
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 DROP TABLE IF EXISTS `notification_queue`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -852,13 +854,13 @@ CREATE TABLE `payment_methods` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_payment_methods_code` (`code`),
   KEY `idx_pm_active` (`is_active`,`sort_order`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `payment_methods` DISABLE KEYS */;
-INSERT INTO `payment_methods` (`id`, `code`, `name`, `description`, `instructions`, `icon`, `requires_proof`, `shows_bank_accounts`, `requires_verification`, `is_online`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES (1,'efectivo','Efectivo','Paga en el local al momento de tu cita.','Acercate unos minutos antes y paga en caja. Aceptamos billetes y monedas.','cash',0,0,0,1,1,0,'2026-08-30 14:09:37','2026-08-30 14:09:37'),
+INSERT INTO `payment_methods` (`id`, `code`, `name`, `description`, `instructions`, `icon`, `requires_proof`, `shows_bank_accounts`, `requires_verification`, `is_online`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES (1,'efectivo','Efectivo','Paga en el local al momento de tu cita.','Acercate unos minutos antes y paga en caja. Aceptamos billetes y monedas.','cash',0,0,0,1,1,0,'2026-08-30 14:09:37','2026-08-31 15:39:01'),
 (2,'transferencia','Transferencia bancaria','Transfiere a nuestra cuenta y sube el comprobante.','Realiza la transferencia a cualquiera de las cuentas indicadas y sube la foto o el archivo del comprobante. Verificamos el pago y confirmamos tu cita.','bank',1,1,1,1,1,1,'2026-08-30 14:09:37','2026-08-30 14:09:37'),
-(3,'tarjeta_local','Tarjeta en el local','Paga con tarjeta al llegar.','Contamos con datafono para debito y credito.','card',0,0,0,1,1,2,'2026-08-30 14:09:37','2026-08-30 14:09:37');
+(5,'tarjeta_local','Tarjeta en el local','Paga con tarjeta al llegar.','Contamos con datafono para debito y credito.','card',0,0,0,0,1,2,'2026-08-31 15:49:13','2026-08-31 15:49:13');
 /*!40000 ALTER TABLE `payment_methods` ENABLE KEYS */;
 DROP TABLE IF EXISTS `payment_proofs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -937,7 +939,7 @@ CREATE TABLE `permissions` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_permissions_slug` (`slug`),
   KEY `idx_permissions_module` (`module`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
@@ -970,7 +972,17 @@ INSERT INTO `permissions` (`id`, `slug`, `module`, `name`, `created_at`) VALUES 
 (27,'ajustes.editar','ajustes','Cambiar los ajustes','2026-08-30 14:09:37'),
 (28,'reportes.ver','reportes','Ver informes','2026-08-30 14:09:37'),
 (29,'sistema.mantenimiento','sistema','Ejecutar mantenimiento','2026-08-30 14:09:37'),
-(30,'sistema.auditoria','sistema','Ver la auditoria','2026-08-30 14:09:37');
+(30,'sistema.auditoria','sistema','Ver la auditoria','2026-08-30 14:09:37'),
+(31,'sucursales.ver','sucursales','Ver las sucursales','2026-08-31 15:23:07'),
+(32,'sucursales.editar','sucursales','Crear y editar sucursales','2026-08-31 15:23:07'),
+(33,'cupones.ver','cupones','Ver los cupones','2026-08-31 15:23:07'),
+(34,'cupones.editar','cupones','Crear y editar cupones','2026-08-31 15:23:07'),
+(35,'suscriptores.ver','marketing','Ver los suscriptores','2026-08-31 15:23:07'),
+(36,'suscriptores.editar','marketing','Administrar los suscriptores','2026-08-31 15:23:07'),
+(37,'espera.ver','citas','Ver la lista de espera','2026-08-31 15:23:07'),
+(38,'espera.editar','citas','Administrar la lista de espera','2026-08-31 15:23:07'),
+(39,'usuarios.ver','seguridad','Ver los usuarios del panel','2026-08-31 15:23:07'),
+(40,'usuarios.editar','seguridad','Crear y editar usuarios del panel','2026-08-31 15:23:07');
 /*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
 DROP TABLE IF EXISTS `push_devices`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1078,7 +1090,7 @@ CREATE TABLE `retention_policies` (
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_retention_key` (`policy_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `retention_policies` DISABLE KEYS */;
@@ -1171,6 +1183,16 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES (2,1),
 (2,28),
 (2,29),
 (2,30),
+(2,31),
+(2,32),
+(2,33),
+(2,34),
+(2,35),
+(2,36),
+(2,37),
+(2,38),
+(2,39),
+(2,40),
 (3,1),
 (3,2),
 (3,3),
@@ -1186,11 +1208,18 @@ INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES (2,1),
 (3,20),
 (3,22),
 (3,28),
+(3,31),
+(3,33),
+(3,34),
+(3,35),
+(3,37),
+(3,38),
 (4,1),
 (4,2),
 (4,4),
 (4,7),
-(4,12);
+(4,12),
+(4,37);
 /*!40000 ALTER TABLE `role_permissions` ENABLE KEYS */;
 DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1461,7 +1490,7 @@ CREATE TABLE `staff` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `staff` DISABLE KEYS */;
-INSERT INTO `staff` (`id`, `user_id`, `branch_id`, `display_name`, `slug`, `title`, `bio`, `photo_path`, `phone`, `email`, `instagram`, `color`, `commission_percent`, `accepts_online`, `is_active`, `show_on_web`, `rating_average`, `rating_count`, `sort_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (2,NULL,1,'Profesional 1','profesional-1-barbero','Barbero','Edita esta ficha desde el panel para contar la experiencia de tu equipo.','','','','','#0ea5e9',0.00,1,1,1,0.00,0,0,'2026-08-30 14:12:39','2026-08-30 14:12:39',NULL),
+INSERT INTO `staff` (`id`, `user_id`, `branch_id`, `display_name`, `slug`, `title`, `bio`, `photo_path`, `phone`, `email`, `instagram`, `color`, `commission_percent`, `accepts_online`, `is_active`, `show_on_web`, `rating_average`, `rating_count`, `sort_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (2,NULL,1,'Profesional 1','profesional-1-barbero','Barbero','Edita esta ficha desde el panel para contar la experiencia de tu equipo.','','','','','#0ea5e9',0.00,1,1,1,0.00,0,0,'2026-08-30 14:12:39','2026-08-31 15:39:31',NULL),
 (3,NULL,1,'Profesional 2','profesional-2-estilista','Estilista','Edita esta ficha desde el panel para contar la experiencia de tu equipo.','','','','','#8b5cf6',0.00,1,1,1,0.00,0,1,'2026-08-30 14:12:39','2026-08-30 14:12:39',NULL),
 (4,NULL,1,'Profesional 3','profesional-3-manicurista','Manicurista','Edita esta ficha desde el panel para contar la experiencia de tu equipo.','','','','','#ec4899',0.00,1,1,1,0.00,0,2,'2026-08-30 14:12:39','2026-08-30 14:12:39',NULL);
 /*!40000 ALTER TABLE `staff` ENABLE KEYS */;
@@ -1639,11 +1668,11 @@ CREATE TABLE `users` (
   KEY `idx_users_referral` (`referral_code`),
   KEY `fk_users_referrer` (`referred_by_id`),
   CONSTRAINT `fk_users_referrer` FOREIGN KEY (`referred_by_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`id`, `uuid`, `role`, `first_name`, `last_name`, `email`, `email_verified_at`, `phone`, `phone_verified_at`, `password_hash`, `password_changed_at`, `avatar_path`, `birth_date`, `gender`, `notes`, `status`, `locale`, `accepts_marketing`, `accepts_email`, `accepts_sms`, `accepts_whatsapp`, `accepts_push`, `marketing_consent_at`, `marketing_consent_ip`, `two_factor_enabled`, `two_factor_secret`, `two_factor_recovery`, `failed_logins`, `locked_until`, `last_login_at`, `last_login_ip`, `tokens_valid_after`, `loyalty_points`, `total_visits`, `total_spent`, `last_visit_at`, `referral_code`, `referred_by_id`, `source`, `created_at`, `updated_at`, `deleted_at`, `anonymized_at`) VALUES (1,'ffaabe71-9676-433e-b3f8-90ff9af6da4b','super_admin','Administrador','','admin@mibarberia.com','2026-08-30 14:09:37','',NULL,'$argon2id$v=19$m=65536,t=4,p=2$WTNiaEZZS1RqQ2JVZHozOA$WcFKdLFpFyexu4Wi8crtsSP6YxPWwML4DHaw5zQtgxs','2026-08-31 14:50:24','',NULL,'',NULL,'active','es',0,1,0,0,1,NULL,'',0,'',NULL,0,NULL,'2026-08-31 14:50:26','127.0.0.1','2026-08-31 14:50:24',0,0,0.00,NULL,'D4A3DDCF',NULL,'instalacion','2026-08-30 14:09:37','2026-08-31 14:50:24',NULL,NULL);
+INSERT INTO `users` (`id`, `uuid`, `role`, `first_name`, `last_name`, `email`, `email_verified_at`, `phone`, `phone_verified_at`, `password_hash`, `password_changed_at`, `avatar_path`, `birth_date`, `gender`, `notes`, `status`, `locale`, `accepts_marketing`, `accepts_email`, `accepts_sms`, `accepts_whatsapp`, `accepts_push`, `marketing_consent_at`, `marketing_consent_ip`, `two_factor_enabled`, `two_factor_secret`, `two_factor_recovery`, `failed_logins`, `locked_until`, `last_login_at`, `last_login_ip`, `tokens_valid_after`, `loyalty_points`, `total_visits`, `total_spent`, `last_visit_at`, `referral_code`, `referred_by_id`, `source`, `created_at`, `updated_at`, `deleted_at`, `anonymized_at`) VALUES (1,'ffaabe71-9676-433e-b3f8-90ff9af6da4b','super_admin','Administrador','','admin@mibarberia.com','2026-08-30 14:09:37','',NULL,'$argon2id$v=19$m=65536,t=4,p=2$ZE9lanpseHZSc3RwMnVMeg$Xtjm4og2gFx/ljUJu4NtFZgHltVZ+p5O10CTPz0iGRk','2026-08-31 15:48:54','',NULL,'',NULL,'active','es',0,1,0,0,1,NULL,'',0,'',NULL,0,NULL,'2026-08-31 15:51:35','127.0.0.1','2026-08-31 15:48:54',0,0,0.00,NULL,'D4A3DDCF',NULL,'instalacion','2026-08-30 14:09:37','2026-08-31 15:48:54',NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 DROP TABLE IF EXISTS `waitlist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

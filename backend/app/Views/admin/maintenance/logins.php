@@ -11,14 +11,14 @@ View::extend('layouts.admin');
 <?php View::start('title'); ?>Historial de accesos<?php View::stop(); ?>
 
 <?php View::start('actions'); ?>
-    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/sistema/auditoria')) ?>">&larr; Auditoria</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/auditoria')) ?>">&larr; Auditoria</a>
 <?php View::stop(); ?>
 
 <?php View::start('content'); ?>
 <div class="tabs">
-    <a class="tab <?= $onlyFailed ? '' : 'is-active' ?>" href="<?= e(url('/panel/sistema/accesos')) ?>">Todos</a>
+    <a class="tab <?= $onlyFailed ? '' : 'is-active' ?>" href="<?= e(url('/panel/mantenimiento/accesos')) ?>">Todos</a>
     <a class="tab <?= $onlyFailed ? 'is-active' : '' ?>"
-       href="<?= e(url('/panel/sistema/accesos?solo=fallidos')) ?>">Solo fallidos</a>
+       href="<?= e(url('/panel/mantenimiento/accesos?solo=fallidos')) ?>">Solo fallidos</a>
 </div>
 
 <div class="card card--flush">
@@ -52,7 +52,7 @@ View::extend('layouts.admin');
 </div>
 
 <?= View::partial('partials.pagination', [
-    'result' => $result, 'baseUrl' => url('/panel/sistema/accesos'),
+    'result' => $result, 'baseUrl' => url('/panel/mantenimiento/accesos'),
     'query' => ['solo' => $onlyFailed ? 'fallidos' : ''],
 ]) ?>
 <?php View::stop(); ?>

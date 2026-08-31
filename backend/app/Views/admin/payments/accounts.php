@@ -270,8 +270,66 @@ View::extend('layouts.admin');
 
                     <button type="submit" class="btn btn--primary btn--sm btn--block">Guardar</button>
                 </form>
+
+                <form method="post" class="mt-2"
+                      action="<?= e(url('/panel/pagos/metodos/' . (int) $method['id'] . '/eliminar')) ?>"
+                      data-confirm="Se quitara este metodo de pago. Continuar?">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn--danger btn--sm btn--block">Eliminar metodo</button>
+                </form>
             </div>
         <?php endforeach; ?>
+
+        <div class="card">
+            <div class="card__head"><h3>Anadir un metodo de pago</h3></div>
+            <p class="text-muted text-small">
+                Por ejemplo: Deuna, PayPhone, tarjeta en el local o cualquier otra
+                forma de cobro que aceptes.
+            </p>
+
+            <form method="post" action="<?= e(url('/panel/pagos/metodos')) ?>">
+                <?= csrf_field() ?>
+
+                <div class="field">
+                    <label for="nuevo-metodo-nombre">Nombre visible</label>
+                    <input id="nuevo-metodo-nombre" type="text" name="name" required maxlength="100"
+                           placeholder="Ej: Deuna">
+                </div>
+
+                <div class="field">
+                    <label for="nuevo-metodo-desc">Descripcion corta</label>
+                    <input id="nuevo-metodo-desc" type="text" name="description" maxlength="500">
+                </div>
+
+                <div class="field">
+                    <label for="nuevo-metodo-inst">Instrucciones para el cliente</label>
+                    <textarea id="nuevo-metodo-inst" name="instructions" rows="3" maxlength="2000"></textarea>
+                </div>
+
+                <label class="checkbox">
+                    <input type="checkbox" name="is_active" value="1" checked>
+                    <span>Disponible</span>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="is_online" value="1" checked>
+                    <span>Se puede elegir al reservar por web/app</span>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="shows_bank_accounts" value="1">
+                    <span>Mostrar los datos bancarios</span>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="requires_proof" value="1">
+                    <span>Exigir comprobante</span>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="requires_verification" value="1">
+                    <span>El personal debe aprobarlo</span>
+                </label>
+
+                <button type="submit" class="btn btn--primary btn--block mt-2">Anadir metodo</button>
+            </form>
+        </div>
     </div>
 </div>
 <?php View::stop(); ?>

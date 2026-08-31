@@ -13,7 +13,7 @@ View::extend('layouts.admin');
 <?php View::start('title'); ?>Simulacion de limpieza<?php View::stop(); ?>
 
 <?php View::start('actions'); ?>
-    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/sistema')) ?>">&larr; Mantenimiento</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento')) ?>">&larr; Mantenimiento</a>
 <?php View::stop(); ?>
 
 <?php View::start('content'); ?>
@@ -85,5 +85,5 @@ View::extend('layouts.admin');
     </div>
 <?php endif; ?>
 
-<a class="btn btn--primary" href="<?= e(url('/panel/sistema')) ?>">Volver y ejecutar la limpieza</a>
+<a class="btn btn--primary" href="<?= e(url('/panel/mantenimiento')) ?>">Volver y ejecutar la limpieza</a>
 <?php View::stop(); ?>

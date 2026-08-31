@@ -34,13 +34,22 @@ desde el panel **sin tocar código**.
   y dispositivo, con límite de vistas por persona y métricas de efectividad.
 - **Todo configurable**: nombre, logo, colores, tipografías, textos de cada sección,
   horarios, reglas de reserva, moneda, zona horaria, enlace de descarga de la app y
-  plantillas de correo. 93 ajustes, cero código.
+  plantillas de correo. 94 ajustes, cero código.
 - Agenda por profesional, alta de citas desde el mostrador, cobros y verificación de
   comprobantes con visor de imágenes.
 - Campañas de correo a tus clientes con público segmentado y baja obligatoria.
+- **Sucursales**: locales, horario semanal y feriados. Es lo que manda sobre la agenda:
+  si el local está cerrado, no se ofrece ninguna cita.
+- **Cupones**: descuentos por porcentaje o monto fijo, con tope, límite de usos, fechas
+  de validez, para un servicio concreto o solo para la primera visita.
+- **Suscriptores** del boletín (alta manual, baja, borrado y descarga en CSV) y **lista
+  de espera** de quien quería una hora ocupada.
+- **Usuarios del panel**: das de alta a tu equipo con su rol. Nadie puede darse más
+  poder del que tiene, ni dejarse fuera a sí mismo.
 - Informes de ingresos, horas pico, origen de las reservas y rendimiento del equipo.
-- **Mantenimiento**: ver cuánto ocupa cada tabla, simular la limpieza, purgar de verdad
-  lo eliminado, borrar archivos huérfanos y compactar las tablas para liberar espacio.
+- **Mantenimiento**: ver cuánto ocupa cada tabla, compactarlas o vaciarlas una a una,
+  gestor de archivos subidos, copias de seguridad descargables, reglas de limpieza
+  automática que tú creas, simulación antes de borrar y purga real para liberar espacio.
 
 ## Instalación rápida
 
@@ -117,10 +126,15 @@ marca las ausencias y hace la limpieza nocturna.
 ## Pruebas
 
 ```bash
-php backend/tests/run.php        # 90 pruebas del núcleo y la seguridad
-bash backend/tests/api_test.sh   # 27 pruebas de la API (con el servidor levantado)
-cd mobile && flutter test        # pruebas de los modelos de la app
+php backend/tests/run.php         # 97 pruebas del núcleo y la seguridad
+bash backend/tests/api_test.sh    # 32 pruebas de la API (con el servidor levantado)
+bash backend/tests/panel_test.sh  # 88 pruebas del panel (con el servidor levantado)
+cd mobile && flutter test         # pruebas de los modelos de la app
 ```
+
+Las dos últimas necesitan el servidor encendido y la base configurada en
+`backend/.env`. `panel_test.sh` entra al panel con `admin@mibarberia.com`; si
+cambiaste la contraseña, pásala con `PANEL_PASSWORD='...'`.
 
 ## Licencia
 

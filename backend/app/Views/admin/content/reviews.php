@@ -100,11 +100,18 @@ View::extend('layouts.admin');
                     </form>
                 </details>
 
-                <form method="post" data-confirm="Eliminar esta resena?"
+                <form method="post" data-confirm="Se quitara de la web. Podras recuperarla hasta la proxima limpieza. Continuar?"
                       action="<?= e(url('/panel/contenido/resenas/' . (int) $review['id'])) ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="eliminar">
-                    <button type="submit" class="btn btn--ghost btn--sm">Eliminar</button>
+                    <button type="submit" class="btn btn--ghost btn--sm">Quitar de la web</button>
+                </form>
+
+                <form method="post"
+                      data-confirm="Se borrara de la base de datos y no habra forma de recuperarla. Continuar?"
+                      action="<?= e(url('/panel/contenido/resenas/' . (int) $review['id'] . '/eliminar')) ?>">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn--danger btn--sm">Borrar definitivamente</button>
                 </form>
             </div>
         </div>

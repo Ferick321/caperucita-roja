@@ -27,18 +27,30 @@ final class ContentController extends AdminController
         ]);
     }
 
+    /**
+     * Secciones que vienen con el sistema. Las plantillas publicas las
+     * buscan por esta clave, asi que se ocultan pero nunca se borran.
+     *
+     * @var list<string>
+     */
+    private const BLOQUES_DEL_SISTEMA = [
+        'hero', 'about', 'services_intro', 'team_intro',
+        'gallery_intro', 'reviews_intro', 'app_promo', 'contact',
+    ];
+
     public function saveBlock(Request $request): Response
     {
         $this->authorize('contenido.editar');
 
         $id = $request->paramInt('id');
-        $block = QueryBuilder::table('content_blocks')->where('id', $id)->first();
+        $block = $id > 0 ? QueryBuilder::table('content_blocks')->where('id', $id)->first() : null;
 
-        if ($block === null) {
+        if ($id > 0 && $block === null) {
             throw new HttpException(404, 'La seccion no existe.');
         }
 
         $data = $this->validate($request, [
+            'section_type' => 'optional|string|max:40|no_html',
             'title' => 'optional|string|max:200|no_html',
             'subtitle' => 'optional|string|max:300|no_html',
             'body' => 'optional|string|max:8000|no_html',
@@ -64,7 +76,7 @@ final class ContentController extends AdminController
 
         if ($request->hasFile('image')) {
             $payload['image_path'] = MediaService::replace(
-                (string) $block['image_path'],
+                (string) ($block['image_path'] ?? ''),
                 (array) $request->file('image'),
                 'contenido',
                 Auth::id(),
@@ -74,7 +86,7 @@ final class ContentController extends AdminController
 
         if ($request->hasFile('background')) {
             $payload['background_path'] = MediaService::replace(
-                (string) $block['background_path'],
+                (string) ($block['background_path'] ?? ''),
                 (array) $request->file('background'),
                 'contenido',
                 Auth::id(),
@@ -82,12 +94,72 @@ final class ContentController extends AdminController
             );
         }
 
-        QueryBuilder::table('content_blocks')->where('id', $id)->update($payload);
-
-        Audit::record('contenido.actualizado', 'content_block', $id, $block, $payload, $request);
-        Session::success('Seccion actualizada. Ya se ve en la web.');
+        if ($id > 0) {
+            QueryBuilder::table('content_blocks')->where('id', $id)->update($payload);
+            Audit::record('contenido.actualizado', 'content_block', $id, $block, $payload, $request);
+            Session::success('Seccion actualizada. Ya se ve en la web.');
+        } else {
+            $payload['section_type'] = (string) ($data['section_type'] ?? 'texto');
+            $payload['block_key'] = $this->uniqueBlockKey((string) ($data['title'] ?? 'seccion'));
+            $payload['created_at'] = Clock::nowUtc();
+            $id = QueryBuilder::table('content_blocks')->insert($payload);
+            Audit::record('contenido.creado', 'content_block', $id, null, $payload, $request);
+            Session::success('Seccion creada. Ya se ve en la web.');
+        }
 
         return $this->redirect('/panel/contenido');
+    }
+
+    /**
+     * Elimina una seccion de la web.
+     *
+     * Las secciones que trae el sistema de fabrica no se borran: se apagan.
+     * Las plantillas publicas las buscan por su clave, y si desaparecieran
+     * la pagina quedaria rota.
+     */
+    public function deleteBlock(Request $request): Response
+    {
+        $this->authorize('contenido.editar');
+
+        $id = $request->paramInt('id');
+        $block = QueryBuilder::table('content_blocks')->where('id', $id)->first();
+
+        if ($block === null) {
+            throw new HttpException(404, 'La seccion no existe.');
+        }
+
+        if (in_array((string) $block['block_key'], self::BLOQUES_DEL_SISTEMA, true)) {
+            QueryBuilder::table('content_blocks')->where('id', $id)->update([
+                'is_active' => 0,
+                'updated_at' => Clock::nowUtc(),
+            ]);
+
+            Audit::record('contenido.apagado', 'content_block', $id, $block, null, $request);
+            Session::success('Esa seccion es parte del disenio de la web, asi que se oculto en vez de borrarse.');
+
+            return $this->redirect('/panel/contenido');
+        }
+
+        QueryBuilder::table('content_blocks')->where('id', $id)->delete();
+        Audit::record('contenido.eliminado', 'content_block', $id, $block, null, $request);
+        Session::success('Seccion eliminada.');
+
+        return $this->redirect('/panel/contenido');
+    }
+
+    /** Clave interna unica para una seccion nueva. */
+    private function uniqueBlockKey(string $title): string
+    {
+        $base = \App\Core\Url::slug($title);
+        $base = $base === '' ? 'seccion' : mb_substr(str_replace('-', '_', $base), 0, 40);
+        $candidate = $base;
+        $suffix = 1;
+
+        while (QueryBuilder::table('content_blocks')->where('block_key', $candidate)->exists()) {
+            $candidate = $base . '_' . (++$suffix);
+        }
+
+        return $candidate;
     }
 
     // ---- Galeria ---------------------------------------------------------
@@ -218,6 +290,30 @@ final class ContentController extends AdminController
             'result' => Model::paginate($query, $this->page($request), 20),
             'filter' => $filter,
         ]);
+    }
+
+    /** Elimina una resena de forma definitiva. */
+    public function deleteReview(Request $request): Response
+    {
+        $this->authorize('contenido.editar');
+
+        $id = $request->paramInt('id');
+        $review = QueryBuilder::table('reviews')->where('id', $id)->first();
+
+        if ($review === null) {
+            throw new HttpException(404, 'La resena no existe.');
+        }
+
+        QueryBuilder::table('reviews')->where('id', $id)->delete();
+
+        // La nota del profesional se calcula con las resenas publicadas, asi
+        // que hay que recalcularla despues de quitar una.
+        $this->refreshStaffRating($review['staff_id'] === null ? null : (int) $review['staff_id']);
+
+        Audit::record('resena.eliminada', 'review', $id, $review, null, $request);
+        Session::success('Resena eliminada.');
+
+        return $this->redirect('/panel/contenido/resenas');
     }
 
     public function moderateReview(Request $request): Response

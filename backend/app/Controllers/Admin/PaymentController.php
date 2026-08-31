@@ -200,9 +200,9 @@ final class PaymentController extends AdminController
         $this->authorize('pagos.cuentas');
 
         $id = $request->paramInt('id');
-        $method = QueryBuilder::table('payment_methods')->where('id', $id)->first();
+        $method = $id > 0 ? QueryBuilder::table('payment_methods')->where('id', $id)->first() : null;
 
-        if ($method === null) {
+        if ($id > 0 && $method === null) {
             throw new HttpException(404, 'El metodo de pago no existe.');
         }
 
@@ -210,13 +210,15 @@ final class PaymentController extends AdminController
             'name' => 'required|string|min:2|max:100|no_html',
             'description' => 'optional|string|max:500|no_html',
             'instructions' => 'optional|string|max:2000|no_html',
+            'icon' => 'optional|string|max:60|no_html',
             'sort_order' => 'optional|int|between:0,999',
-        ], ['name' => 'nombre']);
+        ], ['name' => 'nombre', 'icon' => 'icono']);
 
-        QueryBuilder::table('payment_methods')->where('id', $id)->update([
+        $payload = [
             'name' => $data['name'],
             'description' => (string) ($data['description'] ?? ''),
             'instructions' => (string) ($data['instructions'] ?? ''),
+            'icon' => (string) ($data['icon'] ?? ''),
             'requires_proof' => $request->bool('requires_proof') ? 1 : 0,
             'shows_bank_accounts' => $request->bool('shows_bank_accounts') ? 1 : 0,
             'requires_verification' => $request->bool('requires_verification') ? 1 : 0,
@@ -224,11 +226,77 @@ final class PaymentController extends AdminController
             'is_active' => $request->bool('is_active') ? 1 : 0,
             'sort_order' => (int) ($data['sort_order'] ?? 0),
             'updated_at' => Clock::nowUtc(),
-        ]);
+        ];
 
-        Audit::record('metodo_pago.actualizado', 'payment_method', $id, $method, $data, $request);
-        Session::success('Metodo de pago actualizado.');
+        if ($id > 0) {
+            QueryBuilder::table('payment_methods')->where('id', $id)->update($payload);
+            Audit::record('metodo_pago.actualizado', 'payment_method', $id, $method, $payload, $request);
+            Session::success('Metodo de pago actualizado.');
+        } else {
+            $payload['code'] = $this->uniqueMethodCode((string) $data['name']);
+            $payload['created_at'] = Clock::nowUtc();
+            $id = QueryBuilder::table('payment_methods')->insert($payload);
+            Audit::record('metodo_pago.creado', 'payment_method', $id, null, $payload, $request);
+            Session::success('Metodo de pago creado.');
+        }
 
         return $this->redirect('/panel/pagos/cuentas');
+    }
+
+    /**
+     * Elimina un metodo de pago.
+     *
+     * Si alguna cita ya se cobro con el, no se borra: se apaga. Borrarlo
+     * dejaria pagos historicos apuntando a un metodo inexistente y los
+     * informes de caja no cuadrarian.
+     */
+    public function deleteMethod(Request $request): Response
+    {
+        $this->authorize('pagos.cuentas');
+
+        $id = $request->paramInt('id');
+        $method = QueryBuilder::table('payment_methods')->where('id', $id)->first();
+
+        if ($method === null) {
+            throw new HttpException(404, 'El metodo de pago no existe.');
+        }
+
+        $usados = QueryBuilder::table('payments')->where('payment_method_id', $id)->count();
+
+        if ($usados > 0) {
+            QueryBuilder::table('payment_methods')->where('id', $id)->update([
+                'is_active' => 0,
+                'updated_at' => Clock::nowUtc(),
+            ]);
+
+            Audit::record('metodo_pago.apagado', 'payment_method', $id, $method, null, $request);
+            Session::success(
+                "Ese metodo ya tiene {$usados} pago(s) registrados, asi que se apago en vez de borrarse. "
+                . 'Deja de ofrecerse a los clientes y el historial se conserva.'
+            );
+
+            return $this->redirect('/panel/pagos/cuentas');
+        }
+
+        QueryBuilder::table('payment_methods')->where('id', $id)->delete();
+        Audit::record('metodo_pago.eliminado', 'payment_method', $id, $method, null, $request);
+        Session::success('Metodo de pago eliminado.');
+
+        return $this->redirect('/panel/pagos/cuentas');
+    }
+
+    /** Codigo interno unico a partir del nombre. */
+    private function uniqueMethodCode(string $name): string
+    {
+        $base = \App\Core\Url::slug($name);
+        $base = $base === '' ? 'metodo' : mb_substr(str_replace('-', '_', $base), 0, 30);
+        $candidate = $base;
+        $suffix = 1;
+
+        while (QueryBuilder::table('payment_methods')->where('code', $candidate)->exists()) {
+            $candidate = $base . '_' . (++$suffix);
+        }
+
+        return $candidate;
     }
 }

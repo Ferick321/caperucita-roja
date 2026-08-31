@@ -285,11 +285,39 @@ Sigue este guion para comprobar que todo funciona de punta a punta.
     habría recibido el cliente. Cuando configures SMTP de verdad, saldrán por
     correo real.
 
-### G. Mantenimiento
+### G. Sucursales: cambia el horario y mira la agenda
 
-21. **Mantenimiento**: ves cuánto ocupa cada tabla.
-22. **Simular limpieza**: te muestra qué se borraría **sin borrar nada**.
-23. Si quieres, vuelve atrás y ejecuta la limpieza escribiendo `LIMPIAR`.
+21. **Sucursales → Local principal → Horario**: pon que el lunes cierras a las
+    16:00 y guarda. Vuelve a **Agendar** en la web y elige un lunes: ya no
+    aparecen horas después de las 16:00.
+22. En la misma pantalla, en **Feriados**, añade el próximo lunes. Vuelve a
+    **Agendar** y elige ese día: **no queda ni un turno**. Quita el feriado y
+    vuelven todos.
+
+### H. Cupones
+
+23. **Cupones → Nuevo cupón**: código `BIENVENIDA10`, porcentaje, valor 10.
+    Guarda. Al reservar, escribe ese código y verás el descuento aplicado.
+
+### I. Mantenimiento: liberar espacio de verdad
+
+24. **Mantenimiento → Copias de seguridad → Crear copia**. Descárgala: es tu
+    seguro antes de tocar nada.
+25. **Mantenimiento → Tablas y espacio**: ves cuánto ocupa cada parte del
+    sistema y cuánto espacio se puede recuperar. Pulsa **Compactar todas las
+    tablas**: no borra nada, solo devuelve el espacio libre.
+26. Prueba la protección: intenta **Vaciar** una tabla y escribe cualquier cosa
+    en la confirmación. No borra nada. Escribe el nombre exacto y entonces sí.
+27. **Mantenimiento → Archivos subidos**: los marcados como **Sin usar** ya no
+    los necesita nadie; bórralos para liberar disco.
+28. **Mantenimiento → Simular limpieza**: te muestra qué se borraría **sin
+    borrar nada**. Si te convence, vuelve atrás y ejecuta escribiendo `LIMPIAR`.
+
+### J. Usuarios del panel
+
+29. **Usuarios del panel → Nuevo usuario**: crea una cuenta de **Recepción**.
+    Sal, entra con ella y comprueba que ve las citas pero no el mantenimiento
+    ni los usuarios.
 
 ---
 
@@ -302,11 +330,37 @@ cd C:\xampp\htdocs\mibarberia\backend
 C:\xampp\php\php.exe tests\run.php
 ```
 
-Termina con `RESULTADO: 90 correctas, 0 fallidas`.
+Termina con `RESULTADO: 97 correctas, 0 fallidas`.
 
 Prueban las contraseñas, el cifrado de los datos bancarios, los tokens de la
 app (incluido el intento de falsificarlos), la protección contra inyección SQL,
 el escape de las páginas y las redirecciones.
+
+Hay dos pruebas más, que **necesitan el servidor encendido** (el `php -S` del
+paso 8) y se ejecutan desde otra ventana:
+
+```powershell
+cd C:\xampp\htdocs\mibarberia\backend
+bash tests\api_test.sh
+bash tests\panel_test.sh
+```
+
+- `api_test.sh` recorre la API que usa la aplicación móvil: registro, inicio de
+  sesión, reserva, pago y comprobantes. Termina en `32 correctas, 0 fallidas`.
+- `panel_test.sh` entra al panel con tu usuario y recorre todas las pantallas y
+  operaciones: crea una sucursal, le cambia el horario, comprueba que un feriado
+  deja el día sin turnos, crea y borra un cupón, y verifica que el mantenimiento
+  no deja vaciar el catálogo. Termina en `88 correctas, 0 fallidas`.
+
+  Si cambiaste la contraseña del administrador, pásasela así:
+
+  ```powershell
+  PANEL_PASSWORD='TuClaveSegura#2026' bash tests\panel_test.sh
+  ```
+
+Si no tienes `bash` en Windows, se instala con **Git para Windows**
+(Git Bash). También puedes saltarte estas dos: no son necesarias para usar el
+sistema, solo para comprobarlo.
 
 ---
 

@@ -20,7 +20,8 @@ View::extend('layouts.admin');
 <?php View::start('title'); ?>Mantenimiento<?php View::stop(); ?>
 
 <?php View::start('actions'); ?>
-    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/sistema/simular-limpieza')) ?>">Simular limpieza</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/simular-limpieza')) ?>">Simular limpieza</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/copias')) ?>">Copias de seguridad</a>
 <?php View::stop(); ?>
 
 <?php View::start('content'); ?>
@@ -28,6 +29,15 @@ View::extend('layouts.admin');
     Aqui liberas espacio de verdad: los datos marcados como eliminados se borran de la base,
     los archivos sin duenio desaparecen del disco y las tablas se compactan para devolver el
     espacio al servidor. Puedes simular antes de ejecutar.
+</div>
+
+<div class="quick-links mb-3">
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/tablas')) ?>">Tablas y espacio</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/archivos')) ?>">Archivos subidos</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/copias')) ?>">Copias de seguridad</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/retencion')) ?>">Limpieza automatica</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/auditoria')) ?>">Auditoria</a>
+    <a class="btn btn--ghost btn--sm" href="<?= e(url('/panel/mantenimiento/accesos')) ?>">Accesos</a>
 </div>
 
 <div class="grid grid--4 mb-3">
@@ -61,7 +71,7 @@ View::extend('layouts.admin');
                 Selecciona que quieres limpiar. Esta accion elimina datos de forma definitiva.
             </p>
 
-            <form method="post" action="<?= e(url('/panel/sistema/limpiar')) ?>"
+            <form method="post" action="<?= e(url('/panel/mantenimiento/limpiar')) ?>"
                   data-confirm="Los datos se eliminaran de forma definitiva. Continuar?">
                 <?= csrf_field() ?>
 
@@ -119,6 +129,7 @@ View::extend('layouts.admin');
 
         <div class="card">
             <h2>Politicas de retencion</h2>
+            <p><a href="<?= e(url('/panel/mantenimiento/retencion')) ?>">Crear, editar o eliminar reglas &rarr;</a></p>
             <p class="text-muted text-small">
                 Define cuanto tiempo se conserva cada tipo de dato antes de eliminarlo de forma definitiva.
             </p>
@@ -129,7 +140,7 @@ View::extend('layouts.admin');
                     <tbody>
                         <?php foreach ($policies as $policy): ?>
                             <tr>
-                                <form method="post" action="<?= e(url('/panel/sistema/retencion/' . (int) $policy['id'])) ?>">
+                                <form method="post" action="<?= e(url('/panel/mantenimiento/retencion/' . (int) $policy['id'] . '/rapido')) ?>">
                                     <td>
                                         <?= csrf_field() ?>
                                         <strong><?= e($policy['label']) ?></strong>
@@ -244,13 +255,13 @@ View::extend('layouts.admin');
                 <strong><?= (int) $queue['failed'] ?></strong>
             </div>
 
-            <form method="post" action="<?= e(url('/panel/sistema/cola')) ?>" class="mt-2">
+            <form method="post" action="<?= e(url('/panel/mantenimiento/cola')) ?>" class="mt-2">
                 <?= csrf_field() ?>
                 <button type="submit" class="btn btn--primary btn--sm btn--block">Procesar ahora</button>
             </form>
 
             <?php if ((int) $queue['failed'] > 0): ?>
-                <form method="post" action="<?= e(url('/panel/sistema/cola/reintentar')) ?>" class="mt-1">
+                <form method="post" action="<?= e(url('/panel/mantenimiento/cola/reintentar')) ?>" class="mt-1">
                     <?= csrf_field() ?>
                     <button type="submit" class="btn btn--ghost btn--sm btn--block">Reintentar los fallidos</button>
                 </form>
