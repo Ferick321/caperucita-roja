@@ -11,6 +11,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Security\Auth;
 use App\Security\FileUploader;
+use App\Security\Jwt;
 
 /**
  * Entrega de archivos subidos.
@@ -27,7 +28,7 @@ final class MediaController extends Controller
 
         // Los comprobantes contienen datos bancarios del cliente.
         if (str_starts_with($path, 'comprobantes/')) {
-            $this->authorizeProof($path);
+            $this->authorizeProof($path, $request);
         }
 
         $absolute = FileUploader::absolutePath($path);
@@ -50,8 +51,13 @@ final class MediaController extends Controller
         return $response;
     }
 
-    private function authorizeProof(string $path): void
+    private function authorizeProof(string $path, Request $request): void
     {
+        // La web usa la sesion; la app movil manda su token. Se aceptan las dos.
+        if (!Auth::check()) {
+            $this->authenticateFromBearer($request);
+        }
+
         if (!Auth::check()) {
             throw new HttpException(403, 'Necesitas iniciar sesion para ver este archivo.');
         }
@@ -69,5 +75,44 @@ final class MediaController extends Controller
         if (!$ownsProof) {
             throw new HttpException(403, 'No tienes acceso a este archivo.');
         }
+    }
+
+    /**
+     * Identifica al cliente por el token de la app.
+     *
+     * Se aplican las mismas comprobaciones que en la API: tipo de token,
+     * cuenta activa y fecha de invalidacion tras un cambio de contrasena.
+     */
+    private function authenticateFromBearer(Request $request): void
+    {
+        $token = $request->bearerToken();
+
+        if ($token === null) {
+            return;
+        }
+
+        $claims = Jwt::verify($token);
+
+        if ($claims === null || ($claims['type'] ?? '') !== 'access') {
+            return;
+        }
+
+        $user = QueryBuilder::table('users')
+            ->where('id', (int) ($claims['sub'] ?? 0))
+            ->where('status', 'active')
+            ->whereNull('deleted_at')
+            ->first();
+
+        if ($user === null) {
+            return;
+        }
+
+        $invalidBefore = $user['tokens_valid_after'] ?? null;
+
+        if ($invalidBefore !== null && (int) ($claims['iat'] ?? 0) < strtotime((string) $invalidBefore)) {
+            return;
+        }
+
+        Auth::setApiUser($user);
     }
 }

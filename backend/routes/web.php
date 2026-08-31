@@ -66,5 +66,5 @@ $router->group('', ['https', 'maintenance'], static function (App\Core\Router $r
     $router->post('/publicidad/evento', [AdController::class, 'track'], ['csrf']);
     $router->get('/baja/{token}', [AdController::class, 'unsubscribe']);
     $router->get('/apertura/{token}.gif', [AdController::class, 'trackOpen']);
-    $router->get('/media/{path:any}', [MediaController::class, 'show']);
+    $router->get('/media/{path:path}', [MediaController::class, 'show']);
 });

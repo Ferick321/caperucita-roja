@@ -79,8 +79,13 @@ final class Router
         $params = [];
 
         // {id}, {slug}, {token} => grupos nombrados con caracteres seguros.
+        //
+        // "path" es el unico tipo que admite barras, para rutas de varios
+        // segmentos como /media/comprobantes/2026/08/archivo.png. Quien lo use
+        // debe validar la ruta antes de tocar el disco: lo hace
+        // FileUploader::absolutePath(), que bloquea el salto de directorio.
         $pattern = preg_replace_callback(
-            '/\{([a-zA-Z_][a-zA-Z0-9_]*)(?::(int|slug|uuid|any))?\}/',
+            '/\{([a-zA-Z_][a-zA-Z0-9_]*)(?::(int|slug|uuid|any|path))?\}/',
             static function (array $m) use (&$params): string {
                 $params[] = $m[1];
 
@@ -88,6 +93,7 @@ final class Router
                     'int' => '(?P<' . $m[1] . '>[0-9]+)',
                     'uuid' => '(?P<' . $m[1] . '>[0-9a-fA-F-]{36})',
                     'any' => '(?P<' . $m[1] . '>[^/]+)',
+                    'path' => '(?P<' . $m[1] . '>[A-Za-z0-9._/-]+)',
                     default => '(?P<' . $m[1] . '>[A-Za-z0-9._-]+)',
                 };
             },

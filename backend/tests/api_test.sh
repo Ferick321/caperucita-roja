@@ -1,6 +1,24 @@
 #!/bin/bash
 BASE="http://127.0.0.1:8080/api/v1"
 pass=0; fail=0
+RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Los limites de intentos se guardan en la base. Sin esto la segunda corrida
+# del guion recibiria 429 en el registro y fallaria todo lo que viene despues.
+limpiar_limites() {
+  local env="$RAIZ/.env"
+  [ -f "$env" ] || return 0
+  local host port base usuario clave
+  host=$(grep -m1 '^DB_HOST=' "$env" | cut -d= -f2-)
+  port=$(grep -m1 '^DB_PORT=' "$env" | cut -d= -f2-)
+  base=$(grep -m1 '^DB_DATABASE=' "$env" | cut -d= -f2-)
+  usuario=$(grep -m1 '^DB_USERNAME=' "$env" | cut -d= -f2-)
+  clave=$(grep -m1 '^DB_PASSWORD=' "$env" | cut -d= -f2-)
+  command -v mysql >/dev/null 2>&1 || return 0
+  MYSQL_PWD="$clave" mysql -h"${host:-127.0.0.1}" -P"${port:-3306}" -u"$usuario" "$base" \
+    -e "DELETE FROM rate_limits;" >/dev/null 2>&1
+}
+limpiar_limites
 
 check() {
   local desc="$1" expected="$2" actual="$3"
@@ -97,8 +115,37 @@ PROOF=$(curl -s -X POST $BASE/pagos/$PID/comprobante -H 'Content-Type: applicati
 PURL=$(echo "$PROOF" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['proof']['url'])" 2>/dev/null)
 [ -n "$PURL" ] && { echo "  OK  comprobante subido: $PURL"; pass=$((pass+1)); } || { echo "  ERR comprobante: $PROOF"; fail=$((fail+1)); }
 
-check "cancelar cita" 200 "$(code -X POST $BASE/citas/$APPT_ID/cancelar -H 'Content-Type: application/json' \
-  -H "Authorization: Bearer $NEWTOKEN" -d '{"reason":"prueba"}')"
+echo
+echo "== Politica de cancelacion =="
+# La primera cita se agendo en el hueco mas cercano, que puede estar dentro de
+# las horas de antelacion exigidas: el sistema debe rechazar cancelarla.
+CANCEL_NEAR=$(code -X POST $BASE/citas/$APPT_ID/cancelar -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $NEWTOKEN" -d '{"reason":"prueba"}')
+if [ "$CANCEL_NEAR" = "422" ]; then
+  echo "  OK  cita demasiado proxima: cancelacion rechazada (422)"; pass=$((pass+1))
+elif [ "$CANCEL_NEAR" = "200" ]; then
+  echo "  OK  cita con antelacion suficiente: cancelada (200)"; pass=$((pass+1))
+else
+  echo "  ERR cancelacion devolvio $CANCEL_NEAR"; fail=$((fail+1))
+fi
+
+# Una cita con varios dias por delante siempre debe poder cancelarse.
+DAY_FAR=$(curl -s "$BASE/disponibilidad?service_ids[]=$SID" | python3 -c "import sys,json; d=json.load(sys.stdin)['data']['days']; print(d[3]['date'] if len(d)>3 else (d[-1]['date'] if d else ''))")
+SLOT_FAR=$(curl -s "$BASE/disponibilidad?service_ids[]=$SID&date=$DAY_FAR" | python3 -c "import sys,json; s=json.load(sys.stdin)['data']['slots']; print(s[0]['time'] if s else '')")
+FAR=$(curl -s -X POST $BASE/citas -H 'Content-Type: application/json' -H "Authorization: Bearer $NEWTOKEN" \
+  -d "{\"branch_id\":$BID,\"service_ids\":[$SID],\"date\":\"$DAY_FAR\",\"time\":\"$SLOT_FAR\"}")
+FAR_ID=$(echo "$FAR" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['id'])" 2>/dev/null)
+check "cancelar una cita con dias de antelacion" 200 "$(code -X POST $BASE/citas/$FAR_ID/cancelar \
+  -H 'Content-Type: application/json' -H "Authorization: Bearer $NEWTOKEN" -d '{"reason":"prueba"}')"
+
+echo
+echo "== Entrega de archivos subidos =="
+# La ruta de medios debe aceptar rutas de varios segmentos, exigir permiso en
+# los comprobantes y bloquear el salto de directorio.
+check "comprobante sin sesion -> 403" 403 "$(code "$PURL")"
+check "comprobante con sesion del duenio -> 200" 200 "$(code -H "Authorization: Bearer $NEWTOKEN" "$PURL")"
+check "salto de directorio -> 404" 404 "$(code "http://127.0.0.1:8080/media/../../.env")"
+check "archivo inexistente -> 404" 404 "$(code "http://127.0.0.1:8080/media/servicios/2026/01/noexiste.jpg")"
 
 echo
 echo "RESULTADO: $pass correctas, $fail fallidas"
