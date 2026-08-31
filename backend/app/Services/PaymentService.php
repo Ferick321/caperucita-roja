@@ -207,8 +207,13 @@ final class PaymentService
      *
      * @param array<string,mixed> $file entrada de $_FILES
      */
-    public static function attachProof(int $paymentId, array $file, string $from = 'web', ?int $userId = null): array
-    {
+    public static function attachProof(
+        int $paymentId,
+        array $file,
+        string $from = 'web',
+        ?int $userId = null,
+        bool $fromHttpUpload = true
+    ): array {
         $payment = QueryBuilder::table('payments')->where('id', $paymentId)->first();
 
         if ($payment === null) {
@@ -219,7 +224,7 @@ final class PaymentService
             throw new HttpException(422, 'Este pago ya fue procesado.');
         }
 
-        $stored = FileUploader::store($file, 'comprobantes', true, 1600);
+        $stored = FileUploader::store($file, 'comprobantes', true, 1600, $fromHttpUpload);
 
         // Un mismo comprobante reutilizado en otra cita es una senal de alerta.
         $duplicate = QueryBuilder::table('payment_proofs')

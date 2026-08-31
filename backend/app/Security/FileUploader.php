@@ -40,15 +40,20 @@ final class FileUploader
 
     /**
      * @param array<string,mixed> $file entrada de $_FILES
+     * @param bool $fromHttpUpload false solo para archivos que la propia
+     *        aplicacion escribio en disco (por ejemplo una imagen enviada en
+     *        base64 por la app movil), nunca para datos que llegan por HTTP
+     *        como archivo adjunto.
      * @return array{path:string,mime:string,size:int,width:int,height:int,original_name:string,hash:string}
      */
     public static function store(
         array $file,
         string $folder,
         bool $allowDocuments = false,
-        int $maxWidth = 2000
+        int $maxWidth = 2000,
+        bool $fromHttpUpload = true
     ): array {
-        self::assertValidUpload($file);
+        self::assertValidUpload($file, $fromHttpUpload);
 
         $tmpPath = (string) $file['tmp_name'];
         $size = (int) $file['size'];
@@ -109,7 +114,7 @@ final class FileUploader
     }
 
     /** @param array<string,mixed> $file */
-    private static function assertValidUpload(array $file): void
+    private static function assertValidUpload(array $file, bool $fromHttpUpload = true): void
     {
         $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
 
@@ -125,8 +130,8 @@ final class FileUploader
 
         $tmpPath = (string) ($file['tmp_name'] ?? '');
 
-        // En CLI/pruebas is_uploaded_file no aplica.
-        if (PHP_SAPI !== 'cli' && !is_uploaded_file($tmpPath)) {
+        // is_uploaded_file solo tiene sentido para adjuntos HTTP reales.
+        if ($fromHttpUpload && PHP_SAPI !== 'cli' && !is_uploaded_file($tmpPath)) {
             Logger::warning('Intento de subida sin peticion HTTP legitima', ['tmp' => $tmpPath]);
 
             throw new HttpException(400, 'Subida no valida.');
