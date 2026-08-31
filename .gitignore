@@ -36,3 +36,8 @@ Thumbs.db
 
 # Artefactos de prueba local
 /backend/.env
+
+# Firma de la app Android (nunca debe subirse)
+/mobile/android/key.properties
+*.jks
+*.keystore

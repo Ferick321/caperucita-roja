@@ -1,0 +1,11 @@
+# Copia este archivo como key.properties y completa tus datos de firma.
+# NUNCA subas key.properties ni el archivo .jks a un repositorio.
+#
+# Para generar el almacen de claves:
+#   keytool -genkey -v -keystore ~/mi-barberia.jks -keyalg RSA \
+#           -keysize 2048 -validity 10000 -alias mibarberia
+
+storePassword=TU_CONTRASENA_DEL_ALMACEN
+keyPassword=TU_CONTRASENA_DE_LA_CLAVE
+keyAlias=mibarberia
+storeFile=/ruta/absoluta/a/mi-barberia.jks

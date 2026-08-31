@@ -1,0 +1,43 @@
+name: estilo_app
+description: Aplicacion movil de agendamiento para barberia, peluqueria y estetica.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.6.0 <4.0.0'
+  flutter: '>=3.27.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Red y almacenamiento
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.0.0
+
+  # Interfaz
+  cupertino_icons: ^1.0.6
+  cached_network_image: ^3.3.1
+  intl: ^0.19.0
+  url_launcher: ^6.2.5
+
+  # Camara y archivos (comprobantes de pago)
+  image_picker: ^1.0.7
+
+  # Informacion del dispositivo para ligar la sesion
+  device_info_plus: ^10.1.0
+  package_info_plus: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
