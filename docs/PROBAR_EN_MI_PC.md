@@ -1,7 +1,7 @@
 # Probar el sistema en tu computadora
 
 Guía paso a paso para verlo funcionando en tu PC antes de subirlo a internet.
-Está escrita para Windows con **XAMPP** y **Visual Studio Code**. Si usas Mac o
+Está escrita para Windows con **Laragon** y **Visual Studio Code**. Si usas Mac o
 Linux, los comandos son los mismos cambiando las rutas.
 
 Tiempo estimado: **15 minutos**.
@@ -12,12 +12,17 @@ Tiempo estimado: **15 minutos**.
 
 | Programa | Para qué | Dónde |
 |---|---|---|
-| **XAMPP** (PHP 8.2+) | Servidor web y base de datos | https://www.apachefriends.org |
+| **Laragon** (Full) | Servidor web, PHP y base de datos | https://laragon.org/download |
 | **Visual Studio Code** | Editar el código | https://code.visualstudio.com |
 | **Git** | Descargar el proyecto | https://git-scm.com/download/win |
 
-> Al instalar XAMPP te bastan **Apache** y **MySQL**. Comprueba que trae PHP 8.2
-> o superior: abre `C:\xampp\php\php.exe -v` en una terminal.
+> Descarga la version **Full**: trae Apache, MySQL y PHP juntos.
+>
+> Laragon puede venir con PHP 7. Comprueba tu version abriendo la terminal de
+> Laragon (boton **Terminal**) y escribiendo `php -v`. Si no dice **8.2** o
+> superior, cambiala en **Menu > PHP > Version**. Si ahi no aparece ninguna 8.2,
+> descargala de https://windows.php.net/download (elige *Thread Safe*, x64),
+> descomprimela en `C:\laragon\bin\php\` y vuelve a **Menu > PHP > Version**.
 
 ---
 
@@ -26,13 +31,17 @@ Tiempo estimado: **15 minutos**.
 Abre **PowerShell** o la terminal de Windows:
 
 ```powershell
-cd C:\xampp\htdocs
-git clone https://github.com/Ferick321/caperucita-roja.git mibarberia
-cd mibarberia
+cd C:\laragon\www
+git clone https://github.com/Ferick321/caperucita-roja.git BARBERIA
+cd BARBERIA
+git checkout claude/barbershop-booking-system-v796xc
 ```
 
-Si prefieres no usar Git, descarga el ZIP desde GitHub y descomprímelo en
-`C:\xampp\htdocs\mibarberia`.
+La ultima linea es importante: cambia a la rama donde esta el trabajo.
+
+Si prefieres no usar Git, descarga el ZIP desde GitHub y descomprimelo en
+`C:\laragon\www\BARBERIA`. Dentro deben quedar las carpetas `backend`,
+`mobile` y `docs`.
 
 ---
 
@@ -42,7 +51,7 @@ Si prefieres no usar Git, descarga el ZIP desde GitHub y descomprímelo en
 code .
 ```
 
-O bien: **Visual Studio Code → Archivo → Abrir carpeta →** `C:\xampp\htdocs\mibarberia`.
+O bien: **Visual Studio Code → Archivo → Abrir carpeta →** `C:\laragon\www\BARBERIA`.
 
 **Extensiones recomendadas** (icono de bloques en la barra izquierda):
 
@@ -52,19 +61,18 @@ O bien: **Visual Studio Code → Archivo → Abrir carpeta →** `C:\xampp\htdoc
 
 ---
 
-## Paso 3 — Encender Apache y MySQL
+## Paso 3 — Encender Laragon
 
-Abre el **Panel de control de XAMPP** y pulsa **Start** en:
+Abre **Laragon** y pulsa el boton grande **Iniciar todo**
+(*Start All*). Con eso arrancan Apache y MySQL a la vez.
 
-- ✅ **Apache**
-- ✅ **MySQL**
+Sabras que estan encendidos porque los dos aparecen listados en verde en la
+ventana de Laragon.
 
-Los dos deben quedar en verde.
-
-> **Si Apache no arranca**, casi siempre es que el puerto 80 está ocupado (Skype,
-> IIS o Windows). Pulsa **Config → httpd.conf**, cambia `Listen 80` por
-> `Listen 8080` y `ServerName localhost:80` por `ServerName localhost:8080`.
-> A partir de ahí, entra por `http://localhost:8080` en lugar de `http://localhost`.
+> **Si Apache no arranca**, casi siempre es que el puerto 80 esta ocupado
+> (Skype, IIS o el propio Windows). No hace falta que lo resuelvas: en el
+> paso 8 usamos el servidor de PHP en el puerto 8080, que no depende de
+> Apache. MySQL si tiene que estar encendido.
 
 ---
 
@@ -82,7 +90,7 @@ Ahora importa los datos:
 
 5. Con la base `estilo` seleccionada, pulsa la pestaña **Importar**.
 6. **Seleccionar archivo** → busca
-   `C:\xampp\htdocs\mibarberia\backend\database\exportacion\estilo_base_de_datos.sql`
+   `C:\laragon\www\BARBERIA\backend\database\exportacion\estilo_base_de_datos.sql`
 7. Pulsa **Continuar** (abajo del todo).
 
 Debe salir «La importación se ejecutó correctamente». Verás **51 tablas** en la
@@ -103,7 +111,7 @@ copy .env.example .env
 Genera tus claves de seguridad:
 
 ```powershell
-C:\xampp\php\php.exe cli\console.php key:generate
+php cli\console.php key:generate
 ```
 
 Te imprime tres líneas parecidas a estas:
@@ -121,7 +129,7 @@ así (pega tus tres claves donde corresponde):
 APP_NAME="Mi Barbería"
 APP_ENV=local
 APP_DEBUG=true
-APP_URL=http://localhost/mibarberia/backend/public
+APP_URL=http://localhost:8080
 
 APP_KEY=base64:pega-aqui-tu-clave
 JWT_SECRET=pega-aqui-tu-secreto
@@ -141,7 +149,7 @@ DB_PASSWORD=
 MAIL_TRANSPORT=log
 ```
 
-> `DB_USERNAME=root` y `DB_PASSWORD=` vacío son los valores por defecto de XAMPP.
+> `DB_USERNAME=root` y `DB_PASSWORD=` vacio son los valores por defecto de Laragon.
 > `MAIL_TRANSPORT=log` hace que los correos se escriban en
 > `backend/storage/logs/` en lugar de enviarse: perfecto para probar.
 >
@@ -158,7 +166,7 @@ La contraseña que viene en el `.sql` no te sirve: está cifrada con una clave
 distinta de la tuya. Créala ahora:
 
 ```powershell
-C:\xampp\php\php.exe cli\console.php usuario:clave --email=admin@mibarberia.com --password=MiClave#2026
+php cli\console.php usuario:clave --email=admin@mibarberia.com --password=MiClave#2026
 ```
 
 Debe responder: `Contrasena actualizada.`
@@ -168,7 +176,7 @@ Debe responder: `Contrasena actualizada.`
 ## Paso 7 — Comprobar que todo está bien
 
 ```powershell
-C:\xampp\php\php.exe cli\console.php diagnostico
+php cli\console.php diagnostico
 ```
 
 Deberías ver algo así:
@@ -186,40 +194,62 @@ Deberías ver algo así:
 Es normal que salgan en `!!` estas dos mientras pruebas en local:
 `Modo depuracion apagado` y `HTTPS forzado`. **Todo lo demás debe estar en `[OK]`.**
 
-> **Si falla `Extension sodium` o `Extension gd`**: abre `C:\xampp\php\php.ini`,
-> busca `;extension=sodium` y `;extension=gd`, quítales el punto y coma del
-> principio, guarda y reinicia Apache desde el panel de XAMPP.
+> **Si falla `Extension sodium` o `Extension gd`**: en Laragon ve a
+> **Menu > PHP > php.ini**, busca `;extension=sodium` y `;extension=gd`,
+> quitales el punto y coma del principio, guarda y pulsa
+> **Menu > Apache > Reiniciar**.
 
 ---
 
-## Paso 8 — Abrirlo en el navegador
+## Paso 8 — Encender el sistema y abrirlo
 
-Entra en:
+Abre la terminal de Laragon (boton **Terminal**) y escribe:
 
-**http://localhost/mibarberia/backend/public**
+```powershell
+cd C:\laragon\www\BARBERIA\backend
+php -S localhost:8080 -t public
+```
 
-Deberías ver la página web con el catálogo de servicios de ejemplo.
+**Deja esa ventana abierta**: mientras lo este, el sistema funciona.
+Si la cierras, se apaga.
+
+Ahora entra en:
+
+**http://localhost:8080**
+
+Deberias ver la pagina web con el catalogo de servicios de ejemplo.
 
 Y el panel en:
 
-**http://localhost/mibarberia/backend/public/panel**
+**http://localhost:8080/panel**
 
 - Usuario: `admin@mibarberia.com`
 - Contraseña: la que pusiste en el paso 6
 
 ---
 
-### Alternativa más limpia: servidor de PHP directo
+### Alternativa: una direccion bonita con Apache
 
-Si prefieres una URL corta (`http://localhost:8080`) y no depender de Apache:
+Laragon crea solo una direccion `http://barberia.test` para tu carpeta, pero
+apunta a `C:\laragon\www\BARBERIA`, y la web del sistema vive un poco mas
+adentro, en `backend\public`. Para que funcione hay que decirselo:
 
-```powershell
-cd C:\xampp\htdocs\mibarberia\backend
-C:\xampp\php\php.exe -S localhost:8080 -t public
+1. En Laragon, **Menu > Apache > sites-enabled > auto.BARBERIA.test.conf**.
+2. Busca las dos lineas que dicen `DocumentRoot` y `<Directory ...>` y
+   anadeles `/backend/public` al final de la ruta:
+
+```apache
+DocumentRoot "C:/laragon/www/BARBERIA/backend/public"
+<Directory "C:/laragon/www/BARBERIA/backend/public">
 ```
 
-Cambia en el `.env`: `APP_URL=http://localhost:8080` y abre
-**http://localhost:8080**. Deja esa terminal abierta mientras pruebas.
+3. Guarda y pulsa **Menu > Apache > Reiniciar**.
+4. Cambia en el `.env`: `APP_URL=http://barberia.test`
+
+Ya puedes entrar por **http://barberia.test**.
+
+> Las pruebas automaticas del paso 10 siguen necesitando el servidor en
+> **localhost:8080**, asi que para ejecutarlas usa el metodo del paso 8.
 
 ---
 
@@ -326,8 +356,8 @@ Sigue este guion para comprobar que todo funciona de punta a punta.
 Para comprobar que el núcleo y la seguridad funcionan:
 
 ```powershell
-cd C:\xampp\htdocs\mibarberia\backend
-C:\xampp\php\php.exe tests\run.php
+cd C:\laragon\www\BARBERIA\backend
+php tests\run.php
 ```
 
 Termina con `RESULTADO: 97 correctas, 0 fallidas`.
@@ -340,9 +370,9 @@ Hay dos pruebas más, que **necesitan el servidor encendido** (el `php -S` del
 paso 8) y se ejecutan desde otra ventana:
 
 ```powershell
-cd C:\xampp\htdocs\mibarberia\backend
-bash tests\api_test.sh
-bash tests\panel_test.sh
+cd C:\laragon\www\BARBERIA\backend
+bash tests/api_test.sh
+bash tests/panel_test.sh
 ```
 
 - `api_test.sh` recorre la API que usa la aplicación móvil: registro, inicio de
@@ -355,7 +385,7 @@ bash tests\panel_test.sh
   Si cambiaste la contraseña del administrador, pásasela así:
 
   ```powershell
-  PANEL_PASSWORD='TuClaveSegura#2026' bash tests\panel_test.sh
+  PANEL_PASSWORD='TuClaveSegura#2026' bash tests/panel_test.sh
   ```
 
 Si no tienes `bash` en Windows, se instala con **Git para Windows**
@@ -369,7 +399,7 @@ sistema, solo para comprobarlo.
 Solo si quieres ver la app. Necesitas **Flutter 3.27+** instalado.
 
 ```powershell
-cd C:\xampp\htdocs\mibarberia\mobile
+cd C:\laragon\www\BARBERIA\mobile
 flutter pub get
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080
 ```
@@ -389,23 +419,24 @@ Verás que la app toma **tu logo, tus colores y tus textos** del panel.
 ## Problemas frecuentes
 
 **«No se pudo conectar con la base de datos»**
-MySQL no está encendido en XAMPP, o el `.env` tiene mal `DB_DATABASE`,
+MySQL no esta encendido en Laragon, o el `.env` tiene mal `DB_DATABASE`,
 `DB_USERNAME` o `DB_PASSWORD`. Comprueba con `php cli\console.php diagnostico`.
 
 **Página en blanco o error 500**
 Con `APP_DEBUG=true` el error sale en pantalla. Si no, míralo en
 `backend/storage/logs/app-AAAA-MM-DD.log`.
 
-**Los estilos no cargan (la web se ve sin diseño)**
-Falta activar `mod_rewrite` en Apache: abre `C:\xampp\apache\conf\httpd.conf`,
-busca `#LoadModule rewrite_module`, quítale la `#`, guarda y reinicia Apache.
+**Los estilos no cargan (la web se ve sin diseno)**
+Si entraste por `http://barberia.test`, revisa que el `DocumentRoot` apunte a
+`backend/public` (mira la seccion del paso 8). Con el metodo de
+`php -S localhost:8080` esto no pasa.
 
 **«No hay horarios disponibles»**
 El profesional no tiene horario. **Equipo → editar → Horario semanal** y marca
 sus días. (Los tres de ejemplo ya vienen con horario de lunes a sábado.)
 
-**No se suben las imágenes**
-Abre `C:\xampp\php\php.ini` y sube estos valores:
+**No se suben las imagenes**
+En Laragon, **Menu > PHP > php.ini**, y sube estos valores:
 ```ini
 upload_max_filesize = 8M
 post_max_size = 8M
