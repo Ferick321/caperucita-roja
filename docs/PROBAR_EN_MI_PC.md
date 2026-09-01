@@ -211,15 +211,15 @@ Y el panel en:
 
 ### Alternativa más limpia: servidor de PHP directo
 
-Si prefieres una URL corta (`http://localhost:8000`) y no depender de Apache:
+Si prefieres una URL corta (`http://localhost:8080`) y no depender de Apache:
 
 ```powershell
 cd C:\xampp\htdocs\mibarberia\backend
-C:\xampp\php\php.exe -S localhost:8000 -t public public/index.php
+C:\xampp\php\php.exe -S localhost:8080 -t public
 ```
 
-Cambia en el `.env`: `APP_URL=http://localhost:8000` y abre
-**http://localhost:8000**. Deja esa terminal abierta mientras pruebas.
+Cambia en el `.env`: `APP_URL=http://localhost:8080` y abre
+**http://localhost:8080**. Deja esa terminal abierta mientras pruebas.
 
 ---
 
@@ -371,12 +371,12 @@ Solo si quieres ver la app. Necesitas **Flutter 3.27+** instalado.
 ```powershell
 cd C:\xampp\htdocs\mibarberia\mobile
 flutter pub get
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080
 ```
 
 > `10.0.2.2` es la dirección con la que el emulador de Android ve tu PC.
 > Si usas un teléfono real conectado por USB, pon la IP de tu computadora
-> (la ves con `ipconfig`), por ejemplo `http://192.168.1.50:8000`.
+> (la ves con `ipconfig`), por ejemplo `http://192.168.1.50:8080`.
 >
 > Para que funcione sin HTTPS en pruebas, abre
 > `mobile/android/app/src/main/res/xml/network_security_config.xml` y quita los
